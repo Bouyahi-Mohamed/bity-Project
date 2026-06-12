@@ -1,0 +1,97 @@
+# Bity - Plateforme de Logement Étudiant en Tunisie
+
+Bity est une plateforme sécurisée facilitant la recherche et la location de logements pour les étudiants en Tunisie (ex: Sesame, Esprit, Dauphine, etc.). L'application intègre un backend Node.js/Express relié à une base de données MongoDB, et 4 modules frontends développés en React/Vite.
+
+---
+
+## 📂 Structure du Projet
+
+Le projet est organisé sous forme de monorepo simplifié composé des dossiers suivants :
+
+- **`backend/`** : API REST Node.js, Express, Mongoose (MongoDB).
+- **`bity-login-and-singup/`** : Module d'authentification et d'inscription (Port `3000`).
+- **`bity-espace-etudiant/`** : Espace étudiant (Recherche intelligente, notifications, etc.) (Port `3001`).
+- **`bity-espace-propritaire/`** : Espace propriétaire (CRUD des annonces, Ranking Intelligent) (Port `3002`).
+- **`bity-espace-admin/`** : Espace d'administration (File de validation, statistiques, modération) (Port `3003`).
+
+---
+
+## 🛠️ Pré-requis
+
+Assurez-vous d'avoir installé les éléments suivants sur votre machine :
+- **Node.js** (v18 ou supérieur recommandé)
+- **npm** (inclus avec Node.js)
+- **MongoDB** (exécuté localement sur le port par défaut `27017`)
+
+---
+
+## 🔄 Flux Utilisateur Complet
+
+| Étape | Action | URL |
+|-------|--------|-----|
+| 1 | Connexion / Inscription | `http://localhost:3000` |
+| 2 | Choisir rôle (Étudiant ou Propriétaire) | → `/profiles` |
+| 3 | Uploader les documents de vérification | → `/verify-student` ou `/verify-landlord` |
+| 4 | Remplir les détails personnels + créer mot de passe | → `/personal-details` |
+| 5 | Compte créé → En attente de validation admin | → `/dashboard` (en attente) |
+| 6 | **Admin** valide le compte sur | `http://localhost:3003` |
+| 7 | L'utilisateur se reconnecte → redirigé vers son espace | `3001` (étudiant) ou `3002` (propriétaire) |
+
+---
+
+## ⚙️ Configuration du Projet
+
+### 1. Variables d'environnement du Backend
+Créez un fichier `.env` dans le dossier `backend/` (vous pouvez copier le fichier `backend/.env.example`) :
+```env
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/bity
+JWT_SECRET=bity_super_secret_key_12345
+```
+
+---
+
+## 🚀 Démarrage Rapide
+
+Pour lancer l'intégralité de l'application en une seule commande depuis la racine du projet :
+
+### Étape 1 : Installer toutes les dépendances (Racine et sous-projets)
+Ouvrez un terminal à la racine de votre espace (`project bity/`) et lancez :
+```bash
+npm run install:all
+```
+*Cette commande installera les dépendances du projet principal, du backend et des 4 applications frontend.*
+
+### Étape 2 : Lancer la base de données MongoDB
+Assurez-vous que votre serveur MongoDB local est démarré sur le port `27017`.
+- **Sur Windows (via PowerShell sans privilèges d'administrateur)**, vous pouvez démarrer MongoDB en mode utilisateur avec :
+  ```powershell
+  mongod --dbpath "D:\code\project bity\mongodb_data" --port 27017
+  ```
+
+### Étape 3 : Démarrer l'ensemble des serveurs
+Lancez la commande suivante à la racine :
+```bash
+npm run dev
+```
+*Grâce au script global, cette commande démarre simultanément le serveur backend (port `5000`), le portail de connexion (port `3000`), l'espace étudiant (port `3001`), l'espace propriétaire (port `3002`) et l'espace admin (port `3003`).*
+
+---
+
+## 🔐 Identifiants par Défaut (Super-Admin)
+
+Au premier démarrage du serveur, un compte Administrateur de test est automatiquement créé en base de données :
+- **Adresse e-mail** : `admin@admin.com`
+- **Mot de passe** : `admin`
+
+---
+
+## 🧪 Exécution des Tests d'Intégration de l'API
+
+Pour valider le bon fonctionnement de l'ensemble des routes de l'API (Inscription avec téléversement de documents, blocage si non vérifié, validation de compte par l'admin, publication avec prix obligatoire, recherche multicritères et notifications de baisse de prix) :
+
+1. Assurez-vous que le serveur backend est en cours d'exécution.
+2. Ouvrez un terminal dans le dossier `backend/` et lancez :
+   ```bash
+   npx tsx "C:\Users\bouya\.gemini\antigravity\brain\20027800-f75b-4343-834a-5ef6392db7a1\scratch\test_api.js"
+   ```

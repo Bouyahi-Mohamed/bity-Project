@@ -1,0 +1,18 @@
+{
+  "name": "bity-monorepo",
+  "version": "1.0.0",
+  "description": "Bity - Plateforme de logement étudiant en Tunisie",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix bity-login-and-singup && npm install --prefix bity-espace-etudiant && npm install --prefix bity-espace-propritaire && npm install --prefix bity-espace-admin",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:login": "npm run dev --prefix bity-login-and-singup -- --port=3000",
+    "dev:etudiant": "npm run dev --prefix bity-espace-etudiant -- --port=3001",
+    "dev:propritaire": "npm run dev --prefix bity-espace-propritaire -- --port=3002",
+    "dev:admin": "npm run dev --prefix bity-espace-admin -- --port=3003",
+    "dev": "npx concurrently -n \"backend,login,etudiant,propritaire,admin\" -c \"blue,green,magenta,yellow,cyan\" \"npm run dev:backend\" \"npm run dev:login\" \"npm run dev:etudiant\" \"npm run dev:propritaire\" \"npm run dev:admin\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

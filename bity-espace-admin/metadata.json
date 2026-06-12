@@ -1,0 +1,8 @@
+{
+  "name": "Bity - Student Housing Platform",
+  "description": "A premium student housing and roommate matching platform for Tunisia, featuring advanced moderation and verification tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

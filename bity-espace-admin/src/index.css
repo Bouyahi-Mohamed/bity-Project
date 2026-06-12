@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", sans-serif;
+
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-secondary: #0051d5;
+  --color-on-secondary: #ffffff;
+  --color-background: #f7f9fb;
+  --color-surface: #ffffff;
+  --color-on-surface: #191c1e;
+  --color-surface-dim: #d8dadc;
+  --color-surface-container: #eceef0;
+  
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  
+  --animate-in: in 0.2s ease-out;
+  --animate-out: out 0.2s ease-in;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
+  }
+
+  .premium-card {
+    @apply bg-white rounded-xl border border-slate-200/60 shadow-[0px_10px_30px_rgba(15,23,42,0.05)];
+  }
+}

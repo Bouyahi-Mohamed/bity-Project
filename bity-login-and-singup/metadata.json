@@ -1,0 +1,8 @@
+{
+  "name": "Bity",
+  "description": "Plateforme sécurisée de location pour étudiants et propriétaires, avec vérification d'identité par IA.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}
