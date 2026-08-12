@@ -129,16 +129,7 @@ const DashboardView = ({
   onDeleteListing: (id: string) => void, 
   onConserveListing: (id: string) => void 
 }) => (
-  <div className="flex flex-col gap-6 p-5">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold">AP</div>
-        <h1 className="text-xl font-bold">Bity Moderation</h1>
-      </div>
-      <button className="p-2 bg-white rounded-lg border border-slate-200">
-        <Settings size={20} />
-      </button>
-    </div>
+  <div className="flex flex-col gap-6 py-4">
 
     <div className="bg-[#eef2ff] p-4 rounded-xl flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -276,20 +267,7 @@ const ModerationView = ({
   const totalPending = studentRequests.filter(r => r.status === 'pending').length + ownerRequests.filter(r => r.status === 'pending').length;
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="px-5 py-6 flex items-center justify-between border-b bg-white">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center font-bold text-slate-600">b</div>
-          <div>
-            <h1 className="font-bold leading-none">bity Admin</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Modération</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <Bell size={20} className="text-slate-400" />
-          <img src={MOCK_USER.avatar} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" />
-        </div>
-      </header>
+    <div className="flex flex-col">
 
       <div className="p-5 flex flex-col gap-2">
         <h2 className="text-3xl font-bold tracking-tight">Vérification des Comptes</h2>
@@ -542,14 +520,7 @@ const ListingsView = ({
     : filteredListings;
 
   return (
-    <div className="flex flex-col pb-24">
-      <header className="px-5 pt-8 pb-4 flex items-center justify-between border-b bg-white">
-        <div className="flex items-center gap-3">
-          <img src={MOCK_USER.avatar} className="w-10 h-10 rounded-full border border-slate-200" />
-          <h1 className="font-bold">Bity Moderation</h1>
-        </div>
-        <Settings size={24} className="text-slate-800" />
-      </header>
+    <div className="flex flex-col">
 
       <div className="p-5 flex gap-1.5 p-1.5 bg-slate-100 rounded-xl m-5">
         <button 
@@ -1000,16 +971,7 @@ const VisitsView = ({
   const [remindedIds, setRemindedIds] = useState<string[]>([]);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="px-5 py-6 flex items-center border-b bg-white">
-        <img src={MOCK_USER.avatar} className="w-10 h-10 rounded-full border border-slate-200" />
-        <div className="flex-1 flex justify-center items-center gap-2">
-          <LayoutDashboard size={20} className="text-secondary" />
-          <span className="font-bold text-xl lowercase">bity</span>
-        </div>
-        <h1 className="font-bold">Gestion des Visites</h1>
-        <Bell size={24} className="text-secondary ml-4" />
-      </header>
+    <div className="flex flex-col">
 
       <div className="flex gap-3 p-5">
         <button className="flex-1 py-3 bg-secondary text-white rounded-xl font-bold text-sm shadow-lg shadow-secondary/20">Aujourd'hui</button>
@@ -1653,15 +1615,120 @@ export default function App() {
     }
   };
 
+  const Header = () => {
+    const navItems = [
+      { id: 'dashboard', label: 'Dashboard' },
+      { id: 'moderation', label: 'Modérer' },
+      { id: 'listings', label: 'Annonces' },
+      { id: 'stats', label: 'Visites' },
+    ];
+
+    return (
+      <header className="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-neutral-200/50 px-6 h-16 max-w-7xl mx-auto left-0 right-0">
+        <div className="flex items-center justify-between h-full w-full">
+          {/* Left Side: Logo */}
+          <div 
+            onClick={() => { setViewedProfile(null); setCurrentTab('dashboard'); setCurrentView('main'); }} 
+            className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-95 active:scale-98 transition-all"
+          >
+            <ShieldCheck className="text-secondary" strokeWidth={2.5} size={24} />
+            <span className="font-display text-2xl font-bold text-secondary tracking-tighter">bity</span>
+            <span className="text-[10px] bg-secondary/10 text-secondary px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ml-1">Admin</span>
+          </div>
+
+          {/* Center Side: Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1 bg-neutral-100/60 p-1 rounded-full relative">
+            {navItems.map(({ id, label }) => {
+              const active = currentTab === id && currentView === 'main';
+              return (
+                <button
+                  key={id}
+                  onClick={() => { setViewedProfile(null); setCurrentTab(id); setCurrentView('main'); }}
+                  className={`relative px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer ${
+                    active
+                      ? 'text-white font-extrabold'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {active && (
+                    <motion.div
+                      layoutId="desktopActiveTab"
+                      className="absolute inset-0 bg-secondary rounded-full -z-10 shadow-sm shadow-secondary/15"
+                      transition={{ type: 'spring', duration: 0.38, bounce: 0.15 }}
+                    />
+                  )}
+                  <span className="relative z-10">{label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Right Side: Quick Action & Profile indicator */}
+          <div className="flex items-center gap-1.5">
+            <button 
+              onClick={() => { setViewedProfile(null); setCurrentTab('moderation'); setCurrentView('main'); }} 
+              className="text-slate-500 hover:text-secondary transition-colors p-2 rounded-full hover:bg-neutral-50 relative cursor-pointer"
+            >
+              <Bell size={22} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
+            </button>
+            <button 
+              onClick={() => { setViewedProfile(MOCK_USER); setCurrentView('profile'); }}
+              className="text-slate-500 hover:text-secondary transition-colors p-2 rounded-full hover:bg-neutral-50 cursor-pointer"
+            >
+              <UserIcon size={22} />
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  };
+
+  const BottomNav = () => {
+    const navItems = [
+      { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { id: 'moderation', icon: ShieldCheck, label: 'Modérer' },
+      { id: 'listings', icon: Search, label: 'Annonces' },
+      { id: 'stats', icon: CalendarDays, label: 'Visites' },
+    ];
+
+    return (
+      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-white border-t border-slate-100 md:hidden rounded-t-2xl shadow-lg">
+        {navItems.map(({ id, icon: Icon, label }) => {
+          const active = currentTab === id && currentView === 'main';
+          return (
+            <button 
+              key={id}
+              onClick={() => { setViewedProfile(null); setCurrentTab(id); setCurrentView('main'); }} 
+              className={`flex flex-col items-center justify-center flex-1 transition-all cursor-pointer ${active ? 'text-secondary font-bold' : 'text-slate-500'}`}
+            >
+              {active ? (
+                <div className="bg-secondary/10 rounded-full px-6 py-2 mb-1">
+                   <Icon size={24} strokeWidth={2.5} fill="currentColor" fillOpacity={0.2} />
+                </div>
+              ) : (
+                 <Icon size={24} strokeWidth={2} className="mb-1" />
+              )}
+              <span className="text-[10px] font-bold uppercase tracking-wider">
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+    );
+  };
+
   return (
-    <div className="max-w-md mx-auto bg-background min-h-screen relative shadow-2xl overflow-hidden font-sans">
-      <main className="min-h-screen">
+    <div className="min-h-screen bg-surface font-sans">
+      <Header />
+      <main className="pt-24 pb-32 md:pb-12 max-w-7xl mx-auto px-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentView === 'main' ? currentTab : (viewedProfile ? `profile-${viewedProfile.name}` : currentView)}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
             {renderContent()}
@@ -1701,33 +1768,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/80 backdrop-blur-xl border-t border-slate-100 flex px-2 z-50">
-        <TabButton 
-          active={currentTab === 'dashboard' && currentView === 'main'} 
-          onClick={() => { setViewedProfile(null); setCurrentTab('dashboard'); setCurrentView('main'); }} 
-          icon={LayoutDashboard} 
-          label="Dashboard" 
-        />
-        <TabButton 
-          active={currentTab === 'moderation' && currentView === 'main'} 
-          onClick={() => { setViewedProfile(null); setCurrentTab('moderation'); setCurrentView('main'); }} 
-          icon={ShieldCheck} 
-          label="Modérer" 
-        />
-        <TabButton 
-          active={currentTab === 'listings' && currentView === 'main'} 
-          onClick={() => { setViewedProfile(null); setCurrentTab('listings'); setCurrentView('main'); }} 
-          icon={Search} 
-          label="Annonces" 
-        />
-        <TabButton 
-          active={currentTab === 'stats' && currentView === 'main'} 
-          onClick={() => { setViewedProfile(null); setCurrentTab('stats'); setCurrentView('main'); }} 
-          icon={CalendarDays} 
-          label="Visites" 
-        />
-      </nav>
+      <BottomNav />
     </div>
   );
 }
