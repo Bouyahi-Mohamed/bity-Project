@@ -6,7 +6,25 @@ import { AuthRequest } from '../middleware/auth.js';
 
 export const createAd = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { title, description, price, location, distanceToFac, transportAccess, image, images } = req.body;
+    const { 
+      title, 
+      description, 
+      price, 
+      location, 
+      address,
+      neighborhood,
+      city,
+      latitude,
+      longitude,
+      surface,
+      propertyType,
+      distanceToFac, 
+      transportAccess, 
+      image, 
+      images,
+      features,
+      roommates
+    } = req.body;
 
     // Transparency Rule: price and location are strictly mandatory
     if (!title || price === undefined || !location) {
@@ -24,9 +42,18 @@ export const createAd = async (req: AuthRequest, res: Response): Promise<void> =
       description: description || '',
       price: Number(price),
       location,
+      address: address || '',
+      neighborhood: neighborhood || '',
+      city: city || 'Tunis',
+      latitude: latitude ? Number(latitude) : undefined,
+      longitude: longitude ? Number(longitude) : undefined,
+      surface: surface ? Number(surface) : undefined,
+      propertyType: propertyType || 'Logement entier',
       distanceToFac: distanceToFac ? Number(distanceToFac) : undefined,
       transportAccess: transportAccess === 'true' || transportAccess === true,
       images: images && images.length > 0 ? images : (image ? [image] : []),
+      features: features || [],
+      roommates: roommates || undefined,
       owner: req.user._id,
       status: 'ACTIVE'
     });
@@ -88,7 +115,26 @@ export const getAllAds = async (req: AuthRequest, res: Response): Promise<void> 
 export const updateAd = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { title, description, price, location, distanceToFac, transportAccess, image, images, status } = req.body;
+    const { 
+      title, 
+      description, 
+      price, 
+      location, 
+      address,
+      neighborhood,
+      city,
+      latitude,
+      longitude,
+      surface,
+      propertyType,
+      distanceToFac, 
+      transportAccess, 
+      image, 
+      images, 
+      features,
+      roommates,
+      status 
+    } = req.body;
 
     const ad = await Ad.findById(id);
     if (!ad) {
@@ -114,10 +160,19 @@ export const updateAd = async (req: AuthRequest, res: Response): Promise<void> =
     if (description !== undefined) ad.description = description;
     if (price !== undefined) ad.price = newPrice;
     if (location) ad.location = location;
+    if (address !== undefined) ad.address = address;
+    if (neighborhood !== undefined) ad.neighborhood = neighborhood;
+    if (city !== undefined) ad.city = city;
+    if (latitude !== undefined) ad.latitude = Number(latitude);
+    if (longitude !== undefined) ad.longitude = Number(longitude);
+    if (surface !== undefined) ad.surface = Number(surface);
+    if (propertyType !== undefined) ad.propertyType = propertyType;
     if (distanceToFac !== undefined) ad.distanceToFac = Number(distanceToFac);
     if (transportAccess !== undefined) ad.transportAccess = transportAccess === 'true' || transportAccess === true;
     if (images && images.length > 0) ad.images = images;
       else if (image) ad.images = [image];
+    if (features !== undefined) ad.features = features;
+    if (roommates !== undefined) ad.roommates = roommates;
     if (status) ad.status = status;
 
     await ad.save();

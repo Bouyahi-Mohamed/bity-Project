@@ -1,5 +1,5 @@
 import React from 'react';
-import { 
+import {
   Search, Filter, MapPin, Maximize, Train, School, Heart, CheckCircle2,
   Wifi, Wind, Thermometer, WashingMachine, Armchair, Bath, Clock,
   Check, X
@@ -224,8 +224,8 @@ export default function ExplorePage() {
       // 3. Amenities content mapping
       if (appliedFilters.selectedAmenities.length > 0) {
         const textToSearch = (
-          property.title + ' ' + 
-          property.description + ' ' + 
+          property.title + ' ' +
+          property.description + ' ' +
           property.features.join(' ')
         ).toLowerCase();
 
@@ -260,45 +260,27 @@ export default function ExplorePage() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
       {stats && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
         >
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between ambient-shadow">
-            <div>
-              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-1">Logements Disponibles</p>
-              <h4 className="font-display text-2xl font-bold text-primary">{stats.activeAdsCount} actifs</h4>
-            </div>
-            <div className="text-2xl">🏠</div>
-          </div>
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between ambient-shadow">
-            <div>
-              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-1">Favoris Enregistrés</p>
-              <h4 className="font-display text-2xl font-bold text-secondary">{stats.savedAdsCount} favoris</h4>
-            </div>
-            <div className="text-2xl">❤️</div>
-          </div>
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between ambient-shadow">
-            <div>
-              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-1">Alertes Actives</p>
-              <h4 className="font-display text-2xl font-bold text-indigo-600">{stats.unreadNotificationsCount} nouvelles</h4>
-            </div>
-            <div className="text-2xl">🔔</div>
-          </div>
+          
+          
+          
         </motion.div>
       )}
 
       {/* Search & Hero */}
       <section className="mb-12">
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="font-display text-4xl md:text-5xl text-primary font-bold mb-8 hidden md:block"
         >
           Trouvez votre espace idéal
         </motion.h1>
-        
+
         <div className="flex flex-col md:flex-row gap-4 w-full">
           <div className="relative flex-grow">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-5 h-5" />
@@ -310,7 +292,7 @@ export default function ExplorePage() {
               className="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl py-4 pl-12 pr-4 font-sans text-lg text-on-surface focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all ambient-shadow h-14"
             />
             {searchQuery && (
-              <button 
+              <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors p-1"
               >
@@ -318,12 +300,12 @@ export default function ExplorePage() {
               </button>
             )}
           </div>
-          <button 
+          <button
             onClick={() => setIsOpen(!isOpen)}
             className={cn(
               "px-8 rounded-xl font-semibold h-14 flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg border",
-              isOpen 
-                ? "bg-secondary-container/20 text-secondary border-secondary/30 ring-4 ring-secondary/10" 
+              isOpen
+                ? "bg-secondary-container/20 text-secondary border-secondary/30 ring-4 ring-secondary/10"
                 : "bg-secondary text-on-secondary hover:bg-secondary/90 border-transparent"
             )}
           >
@@ -344,7 +326,7 @@ export default function ExplorePage() {
             >
               <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl p-6 md:p-8 mt-4 shadow-xl space-y-8 relative z-30">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  
+
                   {/* segment 1: pricing slider */}
                   <div className="space-y-4">
                     <h4 className="font-display font-semibold text-on-surface flex items-center gap-2 text-sm uppercase tracking-wider text-secondary">
@@ -355,13 +337,13 @@ export default function ExplorePage() {
                       <div className="flex-1">
                         <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Budget Min</label>
                         <div className="relative">
-                          <input 
-                            type="number" 
+                          <input
+                            type="number"
                             min="100"
                             max="1500"
-                            value={minPrice} 
+                            value={minPrice}
                             onChange={(e) => setMinPrice(Math.max(100, Number(e.target.value)))}
-                            className="w-full bg-surface-container/30 border border-outline-variant/30 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 font-bold transition-all" 
+                            className="w-full bg-surface-container/30 border border-outline-variant/30 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 font-bold transition-all"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant font-semibold">TND</span>
                         </div>
@@ -370,26 +352,26 @@ export default function ExplorePage() {
                       <div className="flex-1">
                         <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Budget Max</label>
                         <div className="relative">
-                          <input 
-                            type="number" 
+                          <input
+                            type="number"
                             min="100"
                             max="1500"
-                            value={maxPrice} 
+                            value={maxPrice}
                             onChange={(e) => setMaxPrice(Math.min(1500, Number(e.target.value)))}
-                            className="w-full bg-surface-container/30 border border-outline-variant/30 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 font-bold transition-all" 
+                            className="w-full bg-surface-container/30 border border-outline-variant/30 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 font-bold transition-all"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant font-semibold">TND</span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="pt-2">
-                      <input 
-                        type="range" 
-                        min="100" 
-                        max="1500" 
+                      <input
+                        type="range"
+                        min="100"
+                        max="1500"
                         step="50"
-                        value={maxPrice} 
+                        value={maxPrice}
                         onChange={(e) => setMaxPrice(Number(e.target.value))}
                         className="w-full h-2 bg-surface-container rounded-lg appearance-none cursor-pointer accent-secondary"
                       />
@@ -428,8 +410,8 @@ export default function ExplorePage() {
                             }}
                             className={cn(
                               "py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center",
-                              isSelected 
-                                ? "bg-secondary-container/10 border-secondary text-secondary shadow-sm" 
+                              isSelected
+                                ? "bg-secondary-container/10 border-secondary text-secondary shadow-sm"
                                 : "bg-surface-container-low/60 border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
                             )}
                           >
@@ -460,8 +442,8 @@ export default function ExplorePage() {
                             onClick={() => setMaxDistance(isSelected ? null : dist.id)}
                             className={cn(
                               "py-2 px-4 rounded-full border text-xs font-bold transition-all",
-                              isSelected 
-                                ? "bg-secondary text-on-secondary border-secondary" 
+                              isSelected
+                                ? "bg-secondary text-on-secondary border-secondary"
                                 : "bg-surface-container-low border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
                             )}
                           >
@@ -498,8 +480,8 @@ export default function ExplorePage() {
                             }}
                             className={cn(
                               "py-2 px-4 rounded-full border text-xs font-bold transition-all",
-                              isSelected 
-                                ? "bg-secondary text-on-secondary border-secondary" 
+                              isSelected
+                                ? "bg-secondary text-on-secondary border-secondary"
                                 : "bg-surface-container-low border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
                             )}
                           >
@@ -540,8 +522,8 @@ export default function ExplorePage() {
                             }}
                             className={cn(
                               "flex items-center gap-3 p-3 rounded-xl border text-xs font-bold transition-all text-left",
-                              isSelected 
-                                ? "bg-secondary/10 border-secondary text-secondary shadow-sm" 
+                              isSelected
+                                ? "bg-secondary/10 border-secondary text-secondary shadow-sm"
                                 : "bg-surface-container-low/50 border-outline-variant/20 text-on-surface-variant hover:bg-surface-container-high"
                             )}
                           >
@@ -572,8 +554,8 @@ export default function ExplorePage() {
                             onClick={() => setSelectedAvailability(isSelected ? '' : opt.id)}
                             className={cn(
                               "py-2.5 px-4 rounded-xl border text-xs font-bold transition-all flex-1 text-center",
-                              isSelected 
-                                ? "bg-secondary text-on-secondary border-secondary shadow-sm" 
+                              isSelected
+                                ? "bg-secondary text-on-secondary border-secondary shadow-sm"
                                 : "bg-surface-container-low border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
                             )}
                           >
@@ -603,8 +585,8 @@ export default function ExplorePage() {
                             onClick={() => setGenderPref(isSelected ? '' : opt.id)}
                             className={cn(
                               "py-2.5 px-4 rounded-xl border text-xs font-bold transition-all flex-1 text-center",
-                              isSelected 
-                                ? "bg-secondary text-on-secondary border-secondary shadow-sm" 
+                              isSelected
+                                ? "bg-secondary text-on-secondary border-secondary shadow-sm"
                                 : "bg-surface-container-low border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
                             )}
                           >
@@ -642,7 +624,7 @@ export default function ExplorePage() {
 
         {/* Quick Filters */}
         <div className="flex items-center gap-3 mt-6 overflow-x-auto pb-2 scrollbar-hide">
-          <button 
+          <button
             onClick={toggleQuickBudget}
             className={cn(
               "whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full border transition-all uppercase tracking-wider",
@@ -653,8 +635,8 @@ export default function ExplorePage() {
           >
             Budget : <span className={cn(appliedFilters.maxPrice === 800 ? "text-on-secondary" : "text-secondary font-normal lowercase")}>Max 800 TND</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={toggleQuickDistance}
             className={cn(
               "whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full border transition-all uppercase tracking-wider",
@@ -666,7 +648,7 @@ export default function ExplorePage() {
             Distance Fac : <span className={cn(appliedFilters.maxDistance === 15 ? "text-on-secondary" : "text-on-surface-variant font-normal lowercase")}>&lt; 15 min</span>
           </button>
 
-          <button 
+          <button
             onClick={toggleQuickTransport}
             className={cn(
               "whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full border transition-all uppercase tracking-wider",
@@ -678,7 +660,7 @@ export default function ExplorePage() {
             Transport : <span className={cn(appliedFilters.selectedTransports.includes('metro') ? "text-on-secondary" : "text-on-surface-variant font-normal lowercase")}>Proche Métro</span>
           </button>
 
-          <button 
+          <button
             onClick={toggleQuickColoc}
             className={cn(
               "whitespace-nowrap text-xs font-bold px-4 py-2 rounded-full border transition-all uppercase tracking-wider",
@@ -715,7 +697,7 @@ export default function ExplorePage() {
           ) : filteredProperties.length === 0 ? (
             <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16 bg-surface-container-lowest rounded-2xl border border-outline-variant/30">
               <p className="text-on-surface-variant font-medium text-lg">Aucun logement ne correspond aux critères sélectionnés.</p>
-              <button 
+              <button
                 onClick={handleReset}
                 className="mt-4 text-xs font-bold text-secondary uppercase tracking-widest hover:underline"
               >
@@ -742,7 +724,7 @@ export default function ExplorePage() {
                       <CheckCircle2 className="w-4 h-4 text-secondary" />
                       <span className="text-[10px] font-bold text-secondary uppercase tracking-wider">Vérifié par bity</span>
                     </div>
-                    <button 
+                    <button
                       onClick={(e) => handleToggleSave(property.id, e)}
                       className="absolute top-4 right-4 text-white hover:text-error transition-colors drop-shadow-md z-10"
                     >
@@ -754,7 +736,7 @@ export default function ExplorePage() {
                     <span className="bg-surface-variant text-on-surface-variant text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest mb-3 inline-block">
                       {property.type}
                     </span>
-                    
+
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-display text-xl font-bold text-primary truncate pr-4">{property.title}</h3>
                       <div className="text-right">

@@ -5,6 +5,10 @@ export interface Property {
   price: number;
   location: string;
   neighborhood: string;
+  address?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
   surface: number;
   distanceToUni: number;
   transportTime: number;

@@ -10,6 +10,7 @@ import { motion } from 'motion/react';
 import { Property } from '@/src/types';
 import { authFetch, requireAuth, mapBackendAdToProperty } from '@/src/lib/api';
 import { cn } from '@/src/lib/utils';
+import AreaMapSection from '@/src/components/AreaMapSection';
 
 export default function PropertyDetailsPage() {
   const { id } = useParams();
@@ -207,6 +208,9 @@ export default function PropertyDetailsPage() {
               </p>
             </section>
           )}
+
+          {/* Area Section (Map & Commute Estimations) */}
+          <AreaMapSection property={property} />
         </div>
 
         {/* Right Column: Landlord & CTA */}
