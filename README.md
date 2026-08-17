@@ -104,3 +104,83 @@ Pour valider le bon fonctionnement de l'ensemble des routes de l'API (Inscriptio
    ```bash
    npx tsx "C:\Users\bouya\.gemini\antigravity\brain\20027800-f75b-4343-834a-5ef6392db7a1\scratch\test_api.js"
    ```
+
+---
+
+## ✅ TODO — Connexion à la Base de Données
+
+Cette section liste toutes les fonctionnalités à connecter à la base de données réelle.
+- ✅ = déjà branché sur le backend MongoDB
+- 🔲 = encore en données fictives (mock) — à implémenter
+
+---
+
+### 🎓 Espace Étudiant (`bity-espace-etudiant` — Port 3001)
+
+#### Annonces & Recherche
+- ✅ Récupération de la liste des annonces depuis `/api/ads`
+- ✅ Affichage des détails d'une annonce depuis `/api/ads/:id`
+- ✅ Filtres de recherche (prix, type, distance) branchés sur le backend
+- ✅ Carte Leaflet avec localisation géographique des annonces
+- ✅ Section colocation : colocataires, avatars photos, noms depuis la BDD
+- 🔲 **Favoris** : enregistrer/supprimer un favori (`POST /api/favorites`)
+- 🔲 **Historique de recherche** : sauvegarder les recherches récentes de l'étudiant
+- 🔲 **Notifications de baisse de prix** : brancher les alertes sur `/api/notifications`
+
+#### Profil Étudiant
+- 🔲 **Page profil** (`/profile`) : charger les vraies infos depuis `/api/users/me`
+- 🔲 **Modifier le profil** : `PUT /api/users/me` (nom, photo, université, etc.)
+- 🔲 **Upload photo de profil** : stocker l'image et mettre à jour l'URL en base
+- 🔲 **Profil public colocataire** (`/student/:name`) : charger depuis `/api/users/:username`
+
+#### Dossier & Candidature
+- 🔲 **Déposer un dossier** : `POST /api/applications` avec documents joints
+- 🔲 **Suivi des candidatures** : lister les dossiers envoyés et leur statut
+- 🔲 **Messagerie propriétaire** : `POST /api/messages` pour contacter un propriétaire
+
+---
+
+### 🏠 Espace Propriétaire (`bity-espace-propritaire` — Port 3002)
+
+#### Gestion des Annonces
+- 🔲 **Lister ses annonces** : `GET /api/ads?owner=me`
+- 🔲 **Créer une annonce** : `POST /api/ads` avec formulaire complet
+  - Titre, description, prix, surface, type (`Logement entier` / `Chambre en colocation`)
+  - Upload des photos
+  - **Localisation** : pin Google Maps → enregistre `latitude`, `longitude`, `address` (remplace "Détails de proximité")
+  - Si colocation : ajouter les colocataires (nom + photo de profil)
+- 🔲 **Modifier une annonce** : `PUT /api/ads/:id`
+- 🔲 **Supprimer une annonce** : `DELETE /api/ads/:id`
+- 🔲 **Changer le statut** : `ACTIVE` / `PÉRIMÉE` / `SIGNALÉE`
+
+#### Profil & Score
+- 🔲 **Score de ranking** : afficher `rankingScore` et `rankingCount` (déjà en base, à afficher)
+- 🔲 **Avis reçus** : lister les commentaires liés aux candidatures résolues
+
+#### Candidatures Reçues
+- 🔲 **Voir les dossiers reçus** : `GET /api/applications?ad=:id`
+- 🔲 **Accepter / Refuser** un dossier : `PUT /api/applications/:id`
+
+---
+
+### 🛡️ Espace Admin (`bity-espace-admin` — Port 3003)
+
+- ✅ Validation / rejet des comptes en attente
+- 🔲 **Statistiques globales** : annonces, utilisateurs, candidatures (`GET /api/admin/stats`)
+- 🔲 **Modération** : lister les annonces avec `status: SIGNALÉE`
+- 🔲 **Gestion des utilisateurs** : suspendre / activer un compte
+
+---
+
+### 🔧 Backend & Infrastructure
+
+- ✅ Modèle `Ad` avec géolocalisation (`latitude`, `longitude`, `address`, `neighborhood`, `city`)
+- ✅ Modèle `User` avec rôles (`student`, `owner`, `admin`) et score propriétaire
+- ✅ Seed script (`backend/scripts/seed_db.ts`) avec 5 annonces géolocalisées + comptes de test
+- ✅ Avatars des colocataires stockés en URLs dans `roommates.avatars[]`
+- 🔲 **Route `/api/users/:username`** : récupérer un profil public par username
+- 🔲 **Route `/api/favorites`** : CRUD des favoris liés à un étudiant
+- 🔲 **Route `/api/applications`** : gestion complète des dossiers de candidature
+- 🔲 **Route `/api/messages`** : messagerie interne étudiant ↔ propriétaire
+- 🔲 **Upload d'images** : améliorer le stockage (Cloudinary ou dossier local `/uploads`)
+- 🔲 **Pagination** sur `GET /api/ads` pour les grandes listes d'annonces

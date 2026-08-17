@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Share2, Heart, MapPin, 
-  Maximize, Armchair, Layers, Users, 
+  Maximize, Armchair, Layers, Users, User, Home,
   MessageCircle, FileText, CheckCircle2,
   ChevronDown, Wifi, WashingMachine, Refrigerator, Shield
 } from 'lucide-react';
@@ -99,13 +99,25 @@ export default function PropertyDetailsPage() {
               <MapPin className="w-5 h-5 text-secondary/70" />
               <span>{property.neighborhood}, {property.location} • {property.distanceToUni} min du Campus</span>
             </div>
-            
-            <div className="flex items-baseline gap-2 pt-4">
+                <div className="flex items-baseline gap-2 pt-4">
               <span className="font-display text-5xl font-bold text-secondary tracking-tighter">{property.price} TND</span>
               <span className="text-on-surface-variant font-medium text-lg">/ mois</span>
             </div>
             
             <div className="flex flex-wrap gap-2 pt-2">
+              <span className="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-primary/10 flex items-center gap-1.5">
+                {property.type === 'Chambre en colocation' ? (
+                  <>
+                    <Users className="w-3.5 h-3.5 text-secondary" />
+                    Colocation ({property.roommates?.count || 2} personnes)
+                  </>
+                ) : (
+                  <>
+                    <User className="w-3.5 h-3.5 text-secondary" />
+                    {property.type === 'Studio' ? 'Studio Individuel (1 personne)' : 'Logement Individuel (1 personne)'}
+                  </>
+                )}
+              </span>
               <span className="bg-secondary/10 text-secondary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-secondary/10">Charges comprises</span>
               <span className="bg-surface-container text-on-surface px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-outline-variant/30">Éligible APL</span>
             </div>
@@ -115,9 +127,13 @@ export default function PropertyDetailsPage() {
           <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: 'Surface', value: `${property.surface} m²`, icon: Maximize },
+              { 
+                label: 'Mode', 
+                value: property.type === 'Chambre en colocation' ? 'Colocation' : '1 Personne', 
+                icon: property.type === 'Chambre en colocation' ? Users : User 
+              },
               { label: 'Meublé', value: 'Oui', icon: Armchair },
               { label: 'Étage', value: '2ème', icon: Layers },
-              { label: 'Disponible', value: 'Immédiat', icon: Users },
             ].map((stat, i) => (
               <div key={i} className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 ambient-shadow flex flex-col items-center justify-center text-center gap-3">
                 <stat.icon className="w-8 h-8 text-primary" />
@@ -131,9 +147,15 @@ export default function PropertyDetailsPage() {
 
           {/* Description */}
           <section className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 ambient-shadow">
-            <h2 className="font-display text-2xl font-bold text-primary mb-6">À propos de la chambre</h2>
+            <h2 className="font-display text-2xl font-bold text-primary mb-6">
+              {property.type === 'Chambre en colocation' 
+                ? 'À propos de la chambre' 
+                : property.type === 'Studio' 
+                  ? 'À propos du studio' 
+                  : 'À propos du logement'}
+            </h2>
             <p className="text-on-surface-variant text-lg leading-relaxed">
-              {property.description} {property.description} Orientée plein sud, elle offre une très belle luminosité tout au long de la journée.
+              {property.description} Orientée plein sud, elle offre une très belle luminosité tout au long de la journée.
             </p>
             <button className="text-secondary font-bold text-sm mt-6 hover:underline flex items-center gap-1 group">
               Lire la suite 
@@ -159,47 +181,76 @@ export default function PropertyDetailsPage() {
             </div>
           </section>
 
-          {/* Roommates Card */}
-          {property.roommates && (
+          {/* Roommates Card (STRICTLY ONLY for Colocation) */}
+          {property.type === 'Chambre en colocation' && property.roommates && property.roommates.count > 0 && (
             <section className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 ambient-shadow">
               <h2 className="font-display text-2xl font-bold text-primary mb-6">La Colocation</h2>
               <div 
                 className="flex items-center gap-6 mb-6 bg-surface-bright p-5 rounded-xl border border-outline-variant/20 select-none"
               >
                 <div className="flex -space-x-4">
-                  {property.roommates.avatars.map((initial, i) => {
-                    const names = ['faten', 'farah', 'hend'];
-                    const currentName = names[i] || 'faten';
-                    return (
-                      <div 
-                        key={i} 
-                        onClick={() => navigate(`/student/${currentName}`)}
-                        className={cn(
-                          "w-12 h-12 rounded-full border-4 border-surface-container-lowest flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 hover:z-20 active:scale-95 transition-all shadow-md",
-                          i === 0 ? "bg-primary" : i === 1 ? "bg-secondary" : "bg-indigo-600"
-                        )}
-                        title={`Voir le profil de ${currentName.charAt(0).toUpperCase() + currentName.slice(1)}`}
-                      >
-                        {initial}
-                      </div>
-                    );
-                  })}
+                  {(() => {
+                    // Parse names from details string e.g. "Faten, Farah • Étudiantes"
+                    const detailsPart = (property.roommates.details || '').split('•')[0];
+                    const roommateNames = detailsPart
+                      .split(',')
+                      .map(n => n.trim())
+                      .filter(Boolean);
+                    const avatarUrls = property.roommates.avatars || [];
+                    const colors = ['bg-primary', 'bg-secondary', 'bg-indigo-600', 'bg-rose-500'];
+                    return roommateNames.map((name, i) => {
+                      const avatarSrc = avatarUrls[i] && avatarUrls[i].startsWith('http') ? avatarUrls[i] : null;
+                      return (
+                        <div 
+                          key={i} 
+                          onClick={() => navigate(`/student/${name.toLowerCase()}`)}
+                          className={cn(
+                            "w-12 h-12 rounded-full border-4 border-surface-container-lowest overflow-hidden cursor-pointer hover:scale-110 hover:z-20 active:scale-95 transition-all shadow-md",
+                            !avatarSrc && (colors[i % colors.length])
+                          )}
+                          title={`Voir le profil de ${name}`}
+                        >
+                          {avatarSrc ? (
+                            <img src={avatarSrc} alt={name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="w-full h-full flex items-center justify-center text-white font-bold text-sm">
+                              {name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
                 <div>
                   <div className="font-bold text-lg text-primary">{property.roommates.count} colocataires actuels</div>
                   <div className="text-on-surface-variant font-medium text-sm flex flex-wrap items-center gap-1 mt-1">
-                    {['Faten', 'Farah', 'Hend'].map((name, idx) => (
-                      <span key={name} className="inline-flex items-center">
-                        <button
-                          onClick={() => navigate(`/student/${name.toLowerCase()}`)}
-                          className="text-secondary hover:text-secondary/80 hover:underline font-bold transition-colors cursor-pointer"
-                        >
-                          {name}
-                        </button>
-                        {idx < 2 && <span className="text-outline font-normal mx-1.5">•</span>}
-                      </span>
-                    ))}
-                    <span className="text-outline font-normal ml-1">• Étudiantes</span>
+                    {(() => {
+                      const detailsPart = (property.roommates.details || '').split('•')[0];
+                      const roommateNames = detailsPart
+                        .split(',')
+                        .map(n => n.trim())
+                        .filter(Boolean);
+                      const suffix = (property.roommates.details || '').includes('•')
+                        ? property.roommates.details.split('•')[1]?.trim()
+                        : 'Étudiantes';
+                      return (
+                        <>
+                          {roommateNames.map((name, idx) => (
+                            <span key={name} className="inline-flex items-center">
+                              <button
+                                onClick={() => navigate(`/student/${name.toLowerCase()}`)}
+                                className="text-secondary hover:text-secondary/80 hover:underline font-bold transition-colors cursor-pointer"
+                              >
+                                {name}
+                              </button>
+                              {idx < roommateNames.length - 1 && <span className="text-outline font-normal mx-1.5">•</span>}
+                            </span>
+                          ))}
+                          {suffix && <span className="text-outline font-normal ml-1">• {suffix}</span>}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

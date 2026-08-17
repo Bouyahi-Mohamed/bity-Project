@@ -150,7 +150,10 @@ async function run() {
       roommates: {
         count: 2,
         details: 'Faten, Farah • Étudiantes',
-        avatars: ['F', 'F']
+        avatars: [
+          'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=100',
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100'
+        ]
       },
       owner: ownerSarah._id,
       status: 'ACTIVE'
