@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, CheckCircle2, ChevronRight, LogOut, Settings, Shield, Clock, BookOpen, UserCircle, Mail, Phone, History, GraduationCap, Calendar, Home } from 'lucide-react';
+import { Star, CheckCircle2, ChevronRight, LogOut, Settings, Shield, Clock, BookOpen, UserCircle, Mail, Phone, History, GraduationCap, Calendar, Home, Info } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/src/lib/utils';
@@ -144,7 +144,8 @@ export default function ProfilePage() {
 
       {/* Action List */}
       <section className="w-full space-y-3">
-        {[
+      {[
+          { icon: Info, label: 'Évaluer & Info', color: 'text-[#3b82f6]', path: '/review' },
           { icon: Settings, label: 'Paramètres du compte', color: 'text-[#3b82f6]', path: '/' },
           { icon: Shield, label: 'Centre de Sécurité', color: 'text-[#3b82f6]', path: '/' },
           { icon: LogOut, label: 'Se Déconnecter', color: 'text-error', isLogout: true, path: '#' }

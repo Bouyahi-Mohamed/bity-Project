@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle2, ChevronRight, Star, Send, ArrowLeft, Eye, MessageSquare, Shield } from 'lucide-react';
+import { Search, CheckCircle2, Star, Send, ArrowLeft, Eye, MessageSquare, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/src/lib/utils';
@@ -12,6 +12,7 @@ export default function ReviewPage() {
   const [usersList, setUsersList] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [feedbackText, setFeedbackText] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,7 +22,6 @@ export default function ReviewPage() {
       if (res.ok) {
         const data = await res.json();
         setUsersList(data.users || []);
-        // Autoselect first result if available and no user is selected
         if (data.users && data.users.length > 0 && !selectedUser) {
           setSelectedUser(data.users[0]);
         }
@@ -50,14 +50,11 @@ export default function ReviewPage() {
       });
       if (res.ok) {
         alert('Votre avis a été enregistré et le score intelligent recalculé !');
-        
-        // Refresh selected user info
         const userRes = await authFetch(`/auth/users/${selectedUser._id}`);
         if (userRes.ok) {
           const userData = await userRes.json();
           setSelectedUser(userData.user);
         }
-        
         setRating(0);
         setFeedbackText('');
       } else {
@@ -66,198 +63,244 @@ export default function ReviewPage() {
       }
     } catch (err) {
       console.error('Error submitting feedback:', err);
-      alert('Erreur serveur lors de la soumission de l\'avis.');
+      alert("Erreur serveur lors de la soumission de l'avis.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const userName = selectedUser
+    ? `${selectedUser.firstName} ${selectedUser.lastName}`.trim() || selectedUser.username
+    : '';
+
   return (
-    <div className="max-w-2xl mx-auto px-6 pt-12 pb-24">
+    <div className="max-w-2xl mx-auto flex flex-col gap-8 pb-10 px-4 pt-6">
+
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass-panel h-16 px-6 flex items-center justify-between border-b border-outline-variant/10 md:hidden">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-surface-container">
-          <ArrowLeft className="w-6 h-6 text-secondary" />
+      <div className="flex items-center justify-between mb-2">
+        <button onClick={() => navigate(-1)} className="text-secondary p-2 -ml-2">
+          <ArrowLeft size={24} />
         </button>
-        <h1 className="font-display font-bold text-secondary">Évaluer & Info</h1>
+        <h1 className="text-2xl font-bold text-secondary">Évaluer &amp; Info</h1>
         <div className="w-10" />
-      </header>
+      </div>
 
-      <div className="flex flex-col gap-10">
-        {/* Search Header */}
-        <div className="relative group">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-secondary transition-colors w-5 h-5" />
-          <input
-            type="text"
-            className="w-full pl-16 pr-6 py-5 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-xl focus:ring-8 focus:ring-secondary/5 focus:border-secondary transition-all font-sans text-lg text-on-surface placeholder:text-outline"
-            placeholder="Rechercher par nom..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </div>
+      {/* Search Bar */}
+      <div className="relative group">
+        <Search
+          className="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-secondary transition-colors"
+          size={20}
+        />
+        <input
+          type="text"
+          placeholder="Rechercher par nom..."
+          className="w-full pl-14 pr-6 py-4 bg-white border border-surface-container-highest rounded-2xl shadow-sm focus:ring-4 focus:ring-secondary/10 focus:border-secondary outline-none transition-all font-medium text-lg text-primary placeholder:text-on-surface-variant"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
-        {/* Toggle Controls */}
-        <div className="flex p-1.5 bg-surface-container rounded-[20px] shadow-inner border border-outline-variant/10">
-          <button 
-            onClick={() => { setSelectedRole('student'); setSelectedUser(null); }}
-            className={cn(
-              "flex-1 py-4 text-center rounded-xl font-bold text-xs uppercase tracking-widest transition-all",
-              selectedRole === 'student' ? "bg-white text-secondary shadow-xl ring-1 ring-secondary/5" : "text-on-surface-variant hover:bg-white/50"
-            )}
-          >
-            COLOCATAIRE
-          </button>
-          <button 
-            onClick={() => { setSelectedRole('owner'); setSelectedUser(null); }}
-            className={cn(
-              "flex-1 py-4 text-center rounded-xl font-bold text-xs uppercase tracking-widest transition-all",
-              selectedRole === 'owner' ? "bg-white text-secondary shadow-xl ring-1 ring-secondary/5" : "text-on-surface-variant hover:bg-white/50"
-            )}
-          >
-            PROPRIÉTAIRE
-          </button>
-        </div>
+      {/* Tab Selector */}
+      <div className="p-1 bg-surface-container-low rounded-2xl flex border border-surface-container">
+        <button
+          onClick={() => { setSelectedRole('student'); setSelectedUser(null); }}
+          className={cn(
+            'flex-1 py-3 text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all',
+            selectedRole === 'student'
+              ? 'bg-white shadow-sm text-secondary'
+              : 'text-on-surface-variant hover:bg-white/50'
+          )}
+        >
+          Colocataire
+        </button>
+        <button
+          onClick={() => { setSelectedRole('owner'); setSelectedUser(null); }}
+          className={cn(
+            'flex-1 py-3 text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all',
+            selectedRole === 'owner'
+              ? 'bg-white shadow-sm text-secondary'
+              : 'text-on-surface-variant hover:bg-white/50'
+          )}
+        >
+          Propriétaire
+        </button>
+      </div>
 
-        {/* Search Results */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center px-2">
-            <h2 className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Résultats de recherche ({usersList.length})</h2>
-          </div>
-          
-          <div className="space-y-4 max-h-60 overflow-y-auto pr-1">
-            {usersList.map((usr) => {
-              const usrName = `${usr.firstName} ${usr.lastName}`.trim() || usr.username || usr.email;
-              const isSelected = selectedUser?._id === usr._id;
-              return (
-                <button 
-                  key={usr._id}
-                  onClick={() => setSelectedUser(usr)}
-                  className={cn(
-                    "w-full flex items-center gap-6 p-6 rounded-[24px] text-left transition-all ambient-shadow border-2",
-                    isSelected ? "bg-secondary/5 border-secondary" : "bg-surface-container-lowest border-outline-variant/20 hover:bg-surface-container-low"
-                  )}
-                >
-                  <div className="w-14 h-14 rounded-full border border-outline-variant/10 overflow-hidden shrink-0">
-                    <img 
-                      src={usr.role === 'student' ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200"} 
-                      className="w-full h-full object-cover" 
-                      alt={usrName} 
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-display font-bold text-on-surface">{usrName}</h4>
-                    <p className="text-on-surface-variant text-sm font-medium">
-                      {usr.role === 'student' ? 'Colocataire / Étudiant' : 'Propriétaire'} {usr.university ? `à ${usr.university}` : ''}
-                    </p>
-                  </div>
-                  {isSelected && <CheckCircle2 className="w-6 h-6 text-secondary fill-current text-white" />}
-                </button>
-              );
-            })}
-            {usersList.length === 0 && (
-              <p className="text-center text-on-surface-variant italic py-4">Aucun profil correspondant trouvé.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Summary Mini-Profile */}
-        {selectedUser && (
-          <div className="bg-surface-container-low/50 rounded-[32px] p-8 border border-outline-variant/30 ambient-shadow">
-            <div className="flex items-center gap-6 mb-8">
-              <div className="w-20 h-20 rounded-full border-4 border-white shadow-xl overflow-hidden shrink-0">
-                <img 
-                  src={selectedUser.role === 'student' ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200"} 
-                  className="w-full h-full object-cover" 
-                  alt="Avatar" 
-                />
-              </div>
-              <div>
-                <h3 className="font-display text-2xl font-bold text-on-surface tracking-tight">
-                  {`${selectedUser.firstName} ${selectedUser.lastName}`.trim() || selectedUser.username}
-                </h3>
-                <p className="text-on-surface-variant font-medium">Membre depuis {new Date(selectedUser.createdAt).getFullYear()}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 flex flex-col justify-center items-center text-center">
-                <span className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Score de confiance</span>
-                <div className="flex items-center gap-1.5 font-display text-lg font-bold">
-                  <Shield className="w-4 h-4 text-secondary fill-current" /> {selectedUser.rankingScore || 5.0}/5
+      {/* Search Results */}
+      <section className="space-y-4">
+        <h3 className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">
+          Résultats de recherche ({usersList.length})
+        </h3>
+        <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+          {usersList.map((usr, idx) => {
+            const usrName = `${usr.firstName} ${usr.lastName}`.trim() || usr.username || usr.email;
+            const isSelected = selectedUser?._id === usr._id;
+            const avatar =
+              usr.role === 'student'
+                ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'
+                : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200';
+            return (
+              <motion.div
+                key={usr._id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.04 }}
+                onClick={() => setSelectedUser(usr)}
+                className={cn(
+                  'w-full flex items-center gap-4 p-4 rounded-2xl text-left relative cursor-pointer border-2 transition-all',
+                  isSelected
+                    ? 'bg-[#eff6ff] border-[#3b82f6]'
+                    : 'bg-white border-surface-container hover:border-secondary/30'
+                )}
+              >
+                <div className="w-14 h-14 rounded-full overflow-hidden border border-surface-container shrink-0">
+                  <img src={avatar} className="w-full h-full object-cover" alt={usrName} />
                 </div>
-              </div>
-              <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 flex flex-col justify-center items-center text-center">
-                <span className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Activité</span>
-                <div className="flex items-center gap-1.5 font-display text-lg font-bold">
-                  <MessageSquare className="w-4 h-4 text-secondary" /> {selectedUser.rankingCount || 0} avis
+                <div className="flex-1">
+                  <h4 className="font-bold text-primary">{usrName}</h4>
+                  <p className="text-[13px] text-on-surface-variant font-medium">
+                    {usr.role === 'student' ? 'Colocataire / Étudiant' : 'Propriétaire'}
+                    {usr.university ? ` à ${usr.university}` : ''}
+                    {isSelected && (
+                      <span className="text-[#3b82f6] font-bold ml-1">• Voir plus</span>
+                    )}
+                  </p>
                 </div>
-              </div>
-            </div>
+                {isSelected && (
+                  <div className="bg-[#3b82f6] text-white p-1 rounded-full border-2 border-white shadow-sm flex items-center justify-center">
+                    <CheckCircle2 size={16} fill="currentColor" fillOpacity={0.4} />
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+          {usersList.length === 0 && (
+            <p className="text-center text-on-surface-variant italic py-6">
+              Aucun profil correspondant trouvé.
+            </p>
+          )}
+        </div>
+      </section>
 
-            <button 
-              onClick={() => navigate(`/student/${selectedUser._id}`)}
-              className="w-full py-4 bg-white border border-secondary text-secondary font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-secondary/5 transition-all flex items-center justify-center gap-2 group"
-            >
-              <Eye className="w-5 h-5 group-hover:scale-110 transition-transform" /> Voir le profil complet
-            </button>
-          </div>
-        )}
-
-        {/* The Rating Card */}
-        {selectedUser && (
-          <>
-            <div className="bg-surface-container-lowest rounded-[32px] p-10 border border-outline-variant/20 ambient-shadow text-center space-y-6">
-              <h3 className="font-display text-2xl font-bold text-on-surface tracking-tight">
-                Noter {`${selectedUser.firstName} ${selectedUser.lastName}`.trim() || selectedUser.username}
-              </h3>
-              <div className="flex justify-center gap-3">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button 
-                    key={star} 
-                    onClick={() => setRating(star)}
-                    className="transition-all hover:scale-125 focus:scale-110"
-                  >
-                    <Star 
-                      className={cn(
-                        "w-12 h-12 transition-colors", 
-                        star <= rating ? "text-secondary fill-current shadow-blue-500/10" : "text-surface-container-highest"
-                      )} 
-                    />
-                  </button>
-                ))}
-              </div>
-              <p className="text-sm font-bold text-on-surface-variant uppercase tracking-widest mt-4">
-                {rating === 0 ? "Appuyez pour noter" : `${rating} étoiles sélectionnées`}
-              </p>
-            </div>
-
-            {/* Review Form */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-2" htmlFor="review">Rédigez votre avis</label>
-              <textarea
-                id="review"
-                className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-8 font-medium text-on-surface focus:ring-8 focus:ring-secondary/5 focus:border-secondary transition-all resize-none shadow-sm placeholder:text-outline"
-                placeholder={`Décrivez votre expérience avec ${selectedUser.firstName || selectedUser.username}...`}
-                rows={5}
-                value={feedbackText}
-                onChange={e => setFeedbackText(e.target.value)}
+      {/* Mini Profile Stats Card */}
+      {selectedUser && (
+        <section className="bg-[#f2f4f6]/50 rounded-3xl p-6 border border-surface-container-highest space-y-6">
+          <div
+            className="flex items-center gap-4 cursor-pointer"
+            onClick={() => navigate(`/student/${selectedUser._id}`)}
+          >
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm">
+              <img
+                src={
+                  selectedUser.role === 'student'
+                    ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'
+                    : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400'
+                }
+                className="w-full h-full object-cover"
+                alt="Avatar"
               />
             </div>
+            <div>
+              <h4 className="text-lg font-bold text-primary">{userName}</h4>
+              <p className="text-[11px] text-on-surface-variant font-medium uppercase tracking-tighter">
+                Membre depuis {new Date(selectedUser.createdAt).getFullYear()}
+              </p>
+            </div>
+          </div>
 
-            <button 
-              onClick={handleSubmitFeedback}
-              disabled={submitting || rating === 0}
-              className={cn(
-                "w-full bg-secondary text-on-secondary font-display text-xl font-bold py-6 rounded-[24px] shadow-2xl shadow-secondary/20 hover:bg-secondary/90 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 group",
-                (submitting || rating === 0) && "opacity-50 cursor-not-allowed"
-              )}
-            >
-              <Send className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> 
-              {submitting ? 'Envoi en cours...' : 'Envoyer l\'avis'}
-            </button>
-          </>
-        )}
-      </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white p-4 rounded-xl border border-surface-container shadow-sm">
+              <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
+                Score de confiance
+              </p>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck size={14} className="text-[#3b82f6]" fill="currentColor" fillOpacity={0.1} />
+                <span className="text-lg font-bold text-primary">
+                  {selectedUser.rankingScore?.toFixed(1) || '5.0'}/5
+                </span>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-surface-container shadow-sm">
+              <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
+                Activité
+              </p>
+              <div className="flex items-center gap-1.5">
+                <MessageSquare size={14} className="text-[#3b82f6]" strokeWidth={2.5} />
+                <span className="text-lg font-bold text-primary">
+                  {selectedUser.rankingCount || 0} avis vérifiés
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate(`/student/${selectedUser._id}`)}
+            className="w-full py-3.5 border-2 border-[#3b82f6] text-[#3b82f6] font-bold text-[11px] uppercase tracking-widest rounded-xl px-4 flex items-center justify-center gap-2 hover:bg-[#3b82f6]/5 transition-all active:scale-[0.98]"
+          >
+            <Eye size={18} strokeWidth={2.5} /> Voir le profil complet
+          </button>
+        </section>
+      )}
+
+      {/* Rating Section */}
+      {selectedUser && (
+        <section className="bg-white rounded-[32px] p-8 border border-surface-container-highest shadow-sm flex flex-col items-center gap-6">
+          <h3 className="text-xl font-bold text-primary mt-2">
+            Noter {userName}
+          </h3>
+
+          <div className="flex gap-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <motion.button
+                key={i}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onMouseEnter={() => setHoverRating(i)}
+                onMouseLeave={() => setHoverRating(0)}
+                onClick={() => setRating(i)}
+                className={`transition-colors outline-none ${
+                  (hoverRating || rating) >= i ? 'text-[#eab308]' : 'text-surface-container-highest'
+                }`}
+              >
+                <Star
+                  size={44}
+                  strokeWidth={1}
+                  fill={(hoverRating || rating) >= i ? 'currentColor' : 'transparent'}
+                />
+              </motion.button>
+            ))}
+          </div>
+
+          <p className="text-sm font-medium text-on-surface-variant -mt-2">
+            {rating === 0 ? 'Appuyez pour noter' : `${rating} étoile${rating > 1 ? 's' : ''} sélectionnée${rating > 1 ? 's' : ''}`}
+          </p>
+
+          <div className="w-full space-y-2 text-left">
+            <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">
+              Rédigez votre avis
+            </label>
+            <textarea
+              rows={6}
+              placeholder={`Décrivez votre expérience avec ${selectedUser.firstName || selectedUser.username}...`}
+              className="w-full bg-surface-container-low/30 border border-surface-container-highest rounded-2xl p-6 text-on-surface font-medium focus:ring-4 focus:ring-secondary/10 focus:border-secondary outline-none transition-all resize-none shadow-inner"
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+            />
+          </div>
+
+          <button
+            onClick={handleSubmitFeedback}
+            disabled={submitting || rating === 0}
+            className={cn(
+              'w-full bg-[#0051d5] text-white font-bold uppercase tracking-widest py-5 rounded-2xl shadow-xl shadow-secondary/20 hover:bg-[#0041ab] transition-all active:scale-[0.98] flex items-center justify-center gap-2',
+              (submitting || rating === 0) && 'opacity-50 cursor-not-allowed'
+            )}
+          >
+            <Send size={18} />
+            {submitting ? "Envoi en cours..." : "Envoyer l'avis"}
+          </button>
+        </section>
+      )}
     </div>
   );
 }

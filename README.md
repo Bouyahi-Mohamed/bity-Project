@@ -78,11 +78,20 @@ npm run dev
 
 ---
 
-## 🔐 Identifiants par Défaut (Super-Admin)
+## 🔐 Identifiants par Défaut (Super-Admin) & Comptes de Test
 
 Au premier démarrage du serveur, un compte Administrateur de test est automatiquement créé en base de données :
 - **Adresse e-mail** : `admin@admin.com`
 - **Mot de passe** : `admin`
+
+### 🎓 Compte Étudiant de Test
+- **Adresse e-mail** : `bouyahi.mohamed.1@gmail.com`
+- **Mot de passe** : `Mohamed007`
+
+### 🏠 Compte Propriétaire de Test
+- **Adresse e-mail** : `nourdine@gmail.com`
+- **Mot de passe** : `Mohamed007`
+
 
 ---
 

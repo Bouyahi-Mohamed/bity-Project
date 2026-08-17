@@ -1624,7 +1624,7 @@ export default function App() {
     ];
 
     return (
-      <header className="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-neutral-200/50 px-6 h-16 max-w-7xl mx-auto left-0 right-0">
+      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 h-16 max-w-7xl mx-auto left-0 right-0">
         <div className="flex items-center justify-between h-full w-full">
           {/* Left Side: Logo */}
           <div 
@@ -1722,7 +1722,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-surface font-sans">
       <Header />
-      <main className="pt-24 pb-32 md:pb-12 max-w-7xl mx-auto px-6">
+      <main className="pt-24 pb-32 md:pb-12 max-w-2xl mx-auto w-full px-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentView === 'main' ? currentTab : (viewedProfile ? `profile-${viewedProfile.name}` : currentView)}
