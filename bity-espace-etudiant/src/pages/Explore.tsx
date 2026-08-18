@@ -158,14 +158,13 @@ export default function ExplorePage() {
   };
 
   React.useEffect(() => {
-    requireAuth();
-    fetchStats();
-    fetchSavedAds();
+    if (localStorage.getItem('bity_token')) {
+      fetchStats();
+      fetchSavedAds();
+    }
   }, []);
 
   React.useEffect(() => {
-    requireAuth();
-
     const fetchProperties = async () => {
       setLoading(true);
       try {

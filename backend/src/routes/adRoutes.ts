@@ -5,14 +5,14 @@ import { upload } from '../middleware/upload.js';
 
 const router = express.Router();
 
-// Explore active ads (all authenticated and verified users)
-router.get('/', authMiddleware, checkVerified, getAllAds);
+// Explore active ads (public access for students & visitors)
+router.get('/', getAllAds);
 
 // Owner's listings
 router.get('/my-ads', authMiddleware, checkRole(['owner', 'admin']), getMyAds);
 
-// Fetch a single ad by ID
-router.get('/:id', authMiddleware, checkVerified, getAdById);
+// Fetch a single ad by ID (public access)
+router.get('/:id', getAdById);
 
 // Create a new ad (only verified owners or admins)
 router.post('/', authMiddleware, checkVerified, checkRole(['owner', 'admin']), createAd);

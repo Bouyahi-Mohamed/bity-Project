@@ -4,8 +4,8 @@ import { authMiddleware, checkRole, checkVerified } from '../middleware/auth.js'
 
 const router = express.Router();
 
-// Smart search (restricted to verified students or admins)
-router.get('/search', authMiddleware, checkVerified, checkRole(['student', 'admin']), searchAds);
+// Smart search (public access for students & visitors)
+router.get('/search', searchAds);
 
 // Fetch notifications (for price drops, new ads)
 router.get('/notifications', authMiddleware, getNotifications);

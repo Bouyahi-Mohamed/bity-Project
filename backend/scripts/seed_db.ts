@@ -132,8 +132,8 @@ async function run() {
       status: 'ACTIVE'
     },
     {
-      title: 'Chambre en Colocation Féminine',
-      description: 'Chambre lumineuse de 16m² dans un bel appartement de 110m². Ambiance calme et studieuse. Idéal pour étudiante (INSAT, Sesame, Dauphine).',
+      title: 'S+3 Colocation Féminine El Menzah 5',
+      description: 'Grand appartement S+3 de 90m² dans une résidence calme et sécurisée. 1 chambre occupée, 1 chambre libérée le 28-09-26 (préavis déposé), et 1 chambre disponible immédiatement. Ambiance studieuse, idéal pour étudiante (INSAT, Sesame, Dauphine). Balcon, machine à laver, Wifi fibre.',
       price: 350,
       location: 'Ariana, El Menzah 5',
       address: 'Avenue Ahmed Tlili, El Menzah 5',
@@ -141,23 +141,25 @@ async function run() {
       city: 'Ariana',
       latitude: 36.8385,
       longitude: 10.1650,
-      surface: 16,
+      surface: 90,
       propertyType: 'Chambre en colocation',
       distanceToFac: 15,
       transportAccess: true,
       image: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=800',
-      features: ['16m²', 'Charges comprises', 'Balcon', 'Machine à laver'],
+      features: ['90m²', 'Charges comprises', 'Balcon', 'Machine à laver', '1 chambre libre', '1 sortie le 28-09-26'],
       roommates: {
-        count: 2,
+        count: 3,
         details: 'Faten, Farah • Étudiantes',
         avatars: [
           'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=100',
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100'
+          'LEAVING:https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100',
+          'FREE'
         ]
       },
       owner: ownerSarah._id,
       status: 'ACTIVE'
     },
+
     {
       title: 'Studio Haut Standing Les Berges du Lac 1',
       description: 'Studio moderne et sécurisé de 35m² au Lac 1. Entièrement équipé avec climatisation centrale, cuisine moderne et vue dégagée. Idéal pour étudiant ou jeune actif.',
