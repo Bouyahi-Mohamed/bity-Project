@@ -5,7 +5,7 @@ import {
   Maximize, Armchair, Layers, Users, User, Home,
   MessageCircle, FileText, CheckCircle2,
   ChevronDown, Wifi, WashingMachine, Refrigerator, Shield,
-  BedDouble, CalendarCheck, Sparkles, Star, Clock, Plus
+  BedDouble, CalendarCheck, Sparkles, Star, Clock, Plus, Check
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Property } from '@/src/types';
@@ -335,6 +335,14 @@ export default function PropertyDetailsPage() {
             const avatarUrls = property.roommates.avatars || [];
             const roomSurface = Math.round((property.surface || 90) / property.roommates.count);
 
+            // TODO: In the future, these room images should be fetched from the database per room, instead of hardcoded placeholders.
+            const fakeRoomImages = [
+              'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=400',
+              'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=400',
+              'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=400',
+              'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&q=80&w=400'
+            ];
+
             return (
               <section className="space-y-5">
                 <div className="flex items-center justify-between">
@@ -361,8 +369,8 @@ export default function PropertyDetailsPage() {
                           className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
                         >
                           {/* Photo */}
-                          <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container flex items-center justify-center">
-                            <BedDouble className="w-12 h-12 text-outline-variant" />
+                          <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
+                            <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
                             <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                               Libre
@@ -428,13 +436,7 @@ export default function PropertyDetailsPage() {
                         >
                           {/* Photo */}
                           <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
-                            {avatarSrc ? (
-                              <img src={avatarSrc} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-surface-container">
-                                <BedDouble className="w-12 h-12 text-outline-variant" />
-                              </div>
-                            )}
+                            <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
                             <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                               Sortie le 28-09-26
@@ -450,7 +452,7 @@ export default function PropertyDetailsPage() {
                                   <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" title="Sortie le 28-09-26" />
                                 </h3>
                                 <p className="text-on-surface-variant text-sm font-medium">
-                                  Occupée par <span className="text-secondary font-bold">{name}</span> · Préavis déposé (Sortie le <strong className="font-bold">28-09-26</strong>)
+                                  Occupée par <button onClick={() => navigate(`/student/${name.toLowerCase()}`)} className="text-secondary font-bold hover:underline transition-colors">{name}</button> · Préavis déposé (Sortie le <strong className="font-bold">28-09-26</strong>)
                                 </p>
                               </div>
                               <div className="text-right flex-shrink-0">
@@ -507,13 +509,7 @@ export default function PropertyDetailsPage() {
                       >
                         {/* Photo */}
                         <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
-                          {avatarSrc ? (
-                            <img src={avatarSrc} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-surface-container">
-                              <BedDouble className="w-12 h-12 text-outline-variant" />
-                            </div>
-                          )}
+                          <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
                           <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
                             <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
                             Occupée
@@ -529,7 +525,7 @@ export default function PropertyDetailsPage() {
                                 <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" title="Occupée" />
                               </h3>
                               <p className="text-on-surface-variant text-sm font-medium">
-                                Occupée par <span className="text-secondary font-bold">{name}</span>
+                                Occupée par <button onClick={() => navigate(`/student/${name.toLowerCase()}`)} className="text-secondary font-bold hover:underline transition-colors">{name}</button>
                               </p>
                             </div>
                             <div className="text-right flex-shrink-0">

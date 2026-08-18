@@ -123,6 +123,7 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 - ✅ Filtres de recherche (prix, type, distance) branchés sur le backend
 - ✅ Carte Leaflet avec localisation géographique des annonces
 - ✅ Section colocation : colocataires, avatars photos, noms depuis la BDD
+- ✅ 3 statuts de chambre (🔴 Occupée, 🟠 Sortie avec préavis, 🟢 Libre) depuis `roommates.avatars[]`
 - 🔲 **Favoris** : enregistrer/supprimer un favori (`POST /api/favorites`)
 - 🔲 **Historique de recherche** : sauvegarder les recherches récentes de l'étudiant
 - 🔲 **Notifications de baisse de prix** : brancher les alertes sur `/api/notifications`
@@ -138,28 +139,72 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 - 🔲 **Suivi des candidatures** : lister les dossiers envoyés et leur statut
 - 🔲 **Messagerie propriétaire** : `POST /api/messages` pour contacter un propriétaire
 
+#### Section Colocation — Images des Chambres (PropertyDetails.tsx)
+> ⚠️ **TODO IMPORTANT** : Dans `bity-espace-etudiant/src/pages/PropertyDetails.tsx`, les images des chambres individuelles (Chambre 1, 2, 3) sont actuellement des **images fictives Unsplash** (tableau `fakeRoomImages`).
+>
+> **À faire lors du branchement de l'Espace Propriétaire :**
+> - Le propriétaire doit pouvoir uploader une photo par chambre lors de la création/édition d'une annonce de colocation.
+> - Ces URLs d'images doivent être stockées dans le modèle `Ad` → `roommates.roomImages: [String]` (à ajouter au schéma Mongoose).
+> - Dans `PropertyDetails.tsx`, remplacer `fakeRoomImages[i % fakeRoomImages.length]` par `property.roommates.roomImages?.[i]` avec fallback sur une image placeholder.
+>
+> **Schéma MongoDB à mettre à jour (`backend/src/models/Ad.ts`) :**
+> ```ts
+> roommates: {
+>   count: Number,
+>   details: String,
+>   avatars: [String],       // statut et photo de profil du colocataire
+>   roomImages: [String],    // TODO: photo de chaque chambre (index = numéro chambre)
+> }
+> ```
+
 ---
 
 ### 🏠 Espace Propriétaire (`bity-espace-propritaire` — Port 3002)
 
-#### Gestion des Annonces
-- 🔲 **Lister ses annonces** : `GET /api/ads?owner=me`
-- 🔲 **Créer une annonce** : `POST /api/ads` avec formulaire complet
-  - Titre, description, prix, surface, type (`Logement entier` / `Chambre en colocation`)
-  - Upload des photos
-  - **Localisation** : pin Google Maps → enregistre `latitude`, `longitude`, `address` (remplace "Détails de proximité")
-  - Si colocation : ajouter les colocataires (nom + photo de profil)
-- 🔲 **Modifier une annonce** : `PUT /api/ads/:id`
-- 🔲 **Supprimer une annonce** : `DELETE /api/ads/:id`
-- 🔲 **Changer le statut** : `ACTIVE` / `PÉRIMÉE` / `SIGNALÉE`
+> 💡 **Note :** Toutes les données de l'espace propriétaire doivent être fetchées depuis la base de données MongoDB via l'API backend (`http://localhost:5000`). Le JWT du propriétaire est nécessaire pour toutes les routes protégées.
 
-#### Profil & Score
-- 🔲 **Score de ranking** : afficher `rankingScore` et `rankingCount` (déjà en base, à afficher)
-- 🔲 **Avis reçus** : lister les commentaires liés aux candidatures résolues
+#### Tableau de Bord — Données à fetcher depuis la BDD
+- 🔲 **Mes annonces** : `GET /api/ads?owner=me` — liste des annonces du propriétaire connecté
+  - Titre, type, prix, statut (`ACTIVE` / `PÉRIMÉE` / `SIGNALÉE`), date de création
+  - Nombre de candidatures reçues par annonce
+  - Score de ranking (`rankingScore`, `rankingCount`) affiché sur chaque annonce
+- 🔲 **Statistiques** : nombre total de vues, de candidatures, de messages reçus
+- 🔲 **Profil propriétaire** : nom, photo, score global, avis reçus
+
+#### Gestion des Annonces — CRUD complet
+- 🔲 **Créer une annonce** : `POST /api/ads`
+  - Champs obligatoires : `title`, `description`, `price`, `surface`, `type`
+  - Upload des **photos du logement** (galerie)
+  - **Localisation** : pin sur carte → enregistre `latitude`, `longitude`, `address`, `neighborhood`, `city`
+  - Si `type = "Chambre en colocation"` :
+    - Nombre de chambres (`roommates.count`)
+    - Pour chaque chambre : nom du colocataire, photo de profil, **photo de la chambre**, statut (`URL` / `LEAVING:URL` / `FREE`)
+    - Ces données alimentent `roommates.avatars[]` et `roommates.roomImages[]`
+- 🔲 **Modifier une annonce** : `PUT /api/ads/:id`
+  - Même formulaire que la création, pré-rempli avec les données existantes
+  - Possibilité de mettre à jour le statut d'une chambre (ex: chambre occupée → préavis → libre)
+- 🔲 **Supprimer une annonce** : `DELETE /api/ads/:id`
+- 🔲 **Changer le statut** : `PATCH /api/ads/:id/status` → `ACTIVE` / `PÉRIMÉE` / `SIGNALÉE`
+
+#### Gestion des Chambres en Colocation
+> Ces données sont directement liées à la section "Description des chambres" affichée dans `PropertyDetails.tsx` (Espace Étudiant).
+>
+> Le propriétaire doit pouvoir depuis son espace :
+- 🔲 **Marquer une chambre comme "Préavis déposé"** : modifier le préfixe `LEAVING:` + définir la date de sortie
+- 🔲 **Marquer une chambre comme "Libre"** : mettre la valeur `FREE` dans `roommates.avatars[i]`
+- 🔲 **Associer un nouveau colocataire** à une chambre libre après réservation acceptée
+- 🔲 **Uploader la photo d'une chambre** → stockée dans `roommates.roomImages[i]`
 
 #### Candidatures Reçues
 - 🔲 **Voir les dossiers reçus** : `GET /api/applications?ad=:id`
-- 🔲 **Accepter / Refuser** un dossier : `PUT /api/applications/:id`
+  - Nom de l'étudiant, université, documents joints, date d'envoi, statut
+- 🔲 **Accepter** un dossier : `PUT /api/applications/:id` → `{ status: "ACCEPTED" }`
+- 🔲 **Refuser** un dossier : `PUT /api/applications/:id` → `{ status: "REJECTED" }`
+- 🔲 **Contacter l'étudiant** via la messagerie interne
+
+#### Messagerie
+- 🔲 **Conversations** : `GET /api/messages?with=:userId`
+- 🔲 **Répondre** : `POST /api/messages`
 
 ---
 
@@ -178,9 +223,44 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 - ✅ Modèle `User` avec rôles (`student`, `owner`, `admin`) et score propriétaire
 - ✅ Seed script (`backend/scripts/seed_db.ts`) avec 5 annonces géolocalisées + comptes de test
 - ✅ Avatars des colocataires stockés en URLs dans `roommates.avatars[]`
+- ✅ Routes publiques `GET /api/ads` et `GET /api/ads/:id` (sans authentification requise)
+- 🔲 **`roommates.roomImages[]`** : ajouter ce champ au schéma `Ad` pour les photos de chaque chambre
 - 🔲 **Route `/api/users/:username`** : récupérer un profil public par username
 - 🔲 **Route `/api/favorites`** : CRUD des favoris liés à un étudiant
 - 🔲 **Route `/api/applications`** : gestion complète des dossiers de candidature
 - 🔲 **Route `/api/messages`** : messagerie interne étudiant ↔ propriétaire
 - 🔲 **Upload d'images** : améliorer le stockage (Cloudinary ou dossier local `/uploads`)
 - 🔲 **Pagination** sur `GET /api/ads` pour les grandes listes d'annonces
+
+---
+
+## 🗺️ Modèle de données — Schéma `Ad` (MongoDB)
+
+```ts
+// backend/src/models/Ad.ts (état actuel + champs TODO)
+{
+  title: String,
+  description: String,
+  price: Number,
+  surface: Number,
+  type: 'Logement entier' | 'Chambre en colocation',
+  location: String,
+  address: String,
+  neighborhood: String,
+  city: String,
+  latitude: Number,
+  longitude: Number,
+  image: String,           // photo principale du logement
+  features: [String],
+  roommates: {
+    count: Number,
+    details: String,       // "Faten, Farah • Étudiantes"
+    avatars: [String],     // ["https://...", "LEAVING:https://...", "FREE"]
+    roomImages: [String],  // TODO: ["url_chambre1", "url_chambre2", "url_chambre3"]
+  },
+  owner: ObjectId,         // ref User
+  status: 'ACTIVE' | 'PÉRIMÉE' | 'SIGNALÉE',
+  rankingScore: Number,
+  rankingCount: Number,
+}
+```
