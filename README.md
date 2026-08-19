@@ -128,23 +128,19 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 - 🔲 **Historique de recherche** : sauvegarder les recherches récentes de l'étudiant
 - 🔲 **Notifications de baisse de prix** : brancher les alertes sur `/api/notifications`
 
-#### Profil Étudiant
-- 🔲 **Page profil** (`/profile`) : charger les vraies infos depuis `/api/users/me`
-- 🔲 **Modifier le profil** : `PUT /api/users/me` (nom, photo, université, etc.)
-- 🔲 **Upload photo de profil** : stocker l'image et mettre à jour l'URL en base
-- 🔲 **Profil public colocataire** (`/student/:name`) : charger depuis `/api/users/:username`
+#### Galerie Photos du Logement (`/property/:id`)
+- ✅ Carousel de photos navigable (← →) avec animation slide et indicateurs dots
+- ✅ Compteur dynamique `X / N PHOTOS` mis à jour en temps réel
+- 🔲 **Photos réelles** : actuellement des images fictives Unsplash dans `fakePhotos[]` (`PropertyDetails.tsx`)
+  - **À faire** : le propriétaire uploade ses photos → stockées dans `Ad.photos: [String]`
+  - **À faire** : remplacer `fakePhotos` par `property.photos` (tableau d'URLs depuis la BDD)
 
-#### Dossier & Candidature
-- 🔲 **Déposer un dossier** : `POST /api/applications` avec documents joints
-- 🔲 **Suivi des candidatures** : lister les dossiers envoyés et leur statut
-- 🔲 **Messagerie propriétaire** : `POST /api/messages` pour contacter un propriétaire
-
-#### Section Colocation — Images des Chambres (PropertyDetails.tsx)
-> ⚠️ **TODO IMPORTANT** : Dans `bity-espace-etudiant/src/pages/PropertyDetails.tsx`, les images des chambres individuelles (Chambre 1, 2, 3) sont actuellement des **images fictives Unsplash** (tableau `fakeRoomImages`).
+#### Section Colocation — Images des Chambres (`PropertyDetails.tsx`)
+> ⚠️ **TODO IMPORTANT** : Les images des chambres individuelles (Chambre 1, 2, 3) sont actuellement des **images fictives Unsplash** (tableau `fakeRoomImages`).
 >
 > **À faire lors du branchement de l'Espace Propriétaire :**
-> - Le propriétaire doit pouvoir uploader une photo par chambre lors de la création/édition d'une annonce de colocation.
-> - Ces URLs d'images doivent être stockées dans le modèle `Ad` → `roommates.roomImages: [String]` (à ajouter au schéma Mongoose).
+> - Le propriétaire uploade une photo par chambre lors de la création/édition d'une annonce de colocation.
+> - Ces URLs d'images sont stockées dans le modèle `Ad` → `roommates.roomImages: [String]` (à ajouter au schéma Mongoose).
 > - Dans `PropertyDetails.tsx`, remplacer `fakeRoomImages[i % fakeRoomImages.length]` par `property.roommates.roomImages?.[i]` avec fallback sur une image placeholder.
 >
 > **Schéma MongoDB à mettre à jour (`backend/src/models/Ad.ts`) :**
@@ -156,6 +152,34 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 >   roomImages: [String],    // TODO: photo de chaque chambre (index = numéro chambre)
 > }
 > ```
+
+#### Profil Étudiant & Menu Compte
+- ✅ **Page profil** (`/profile`) avec design moderne en 2 colonnes (carte profil, statistiques rapides, infos personnelles, activités récentes)
+- ✅ **Menu déroulant sur l'avatar du header** (toggle dropdown avec accès direct au profil, évaluations, paramètres et déconnexion)
+- 🔲 **Modifier le profil** : `PUT /api/auth/profile` (nom, photo, université, téléphone, centres d'intérêt)
+- 🔲 **Upload photo de profil** : stocker l'image et mettre à jour l'URL en base (`PUT /api/auth/profile/avatar`)
+- 🔲 **Profil public colocataire/propriétaire** (`/student/:id`, `/owner/:id`) : charger depuis l'API
+- 🔲 **Settings & privacy** : page / modal de gestion des préférences de confidentialité et paramètres du compte
+- 🔲 **Help & support** : centre d'aide, FAQ et contact support pour les étudiants et propriétaires
+
+#### Dossier & Candidature
+- 🔲 **Déposer un dossier** : `POST /api/applications` avec documents joints
+- 🔲 **Suivi des candidatures** : lister les dossiers envoyés et leur statut
+
+#### 💬 Messagerie — Page Chat (`/messages`)
+- ✅ Page `/messages` créée avec sidebar conversations + thread de messages (`Chat.tsx`)
+- ✅ Navigation `/messages/:ownerId/:propertyId` — ouvre directement la conversation liée à une annonce
+- ✅ Bouton **"Contacter le propriétaire"** redirige vers `/messages/:ownerId/:propertyId`
+- ✅ Icône ✉️ avec badge de messages non lus dans la **navbar desktop** (près de l'avatar)
+- ✅ Onglet **Messages** avec badge dans la **barre mobile** (bottom nav)
+- ✅ Envoi de messages dans la conversation, animations, responsive mobile/desktop
+- 🔲 **Conversations réelles** : remplacer `MOCK_CONVERSATIONS` par `GET /api/messages/conversations`
+  - Fichier : `bity-espace-etudiant/src/pages/Chat.tsx` → constante `MOCK_CONVERSATIONS`
+- 🔲 **Messages réels** : remplacer les messages fictifs par `GET /api/messages/:conversationId`
+- 🔲 **Envoyer un message** : brancher sur `POST /api/messages`
+- 🔲 **Badge non lus réel** : remplacer `MOCK_UNREAD_MESSAGES = 2` par `GET /api/messages/unread-count`
+  - Fichier : `bity-espace-etudiant/src/components/Layout.tsx` → constante `MOCK_UNREAD_MESSAGES`
+- 🔲 **Temps réel** : implémenter WebSocket ou polling pour les nouveaux messages
 
 ---
 
@@ -170,11 +194,12 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
   - Score de ranking (`rankingScore`, `rankingCount`) affiché sur chaque annonce
 - 🔲 **Statistiques** : nombre total de vues, de candidatures, de messages reçus
 - 🔲 **Profil propriétaire** : nom, photo, score global, avis reçus
+  - 🔲 **Taux de réponse** : calculé dynamiquement à partir des messages échangés (`taux = (messages répondus / messages reçus) * 100`) + temps moyen de réponse (ex: "100% — Répond sous 1h") affiché sur son profil public `/owner/:id`
 
 #### Gestion des Annonces — CRUD complet
 - 🔲 **Créer une annonce** : `POST /api/ads`
   - Champs obligatoires : `title`, `description`, `price`, `surface`, `type`
-  - Upload des **photos du logement** (galerie)
+  - Upload des **photos du logement** (galerie) → stockées dans `Ad.photos[]`
   - **Localisation** : pin sur carte → enregistre `latitude`, `longitude`, `address`, `neighborhood`, `city`
   - Si `type = "Chambre en colocation"` :
     - Nombre de chambres (`roommates.count`)
@@ -200,11 +225,11 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
   - Nom de l'étudiant, université, documents joints, date d'envoi, statut
 - 🔲 **Accepter** un dossier : `PUT /api/applications/:id` → `{ status: "ACCEPTED" }`
 - 🔲 **Refuser** un dossier : `PUT /api/applications/:id` → `{ status: "REJECTED" }`
-- 🔲 **Contacter l'étudiant** via la messagerie interne
+- 🔲 **Contacter l'étudiant** via la messagerie interne → utiliser le système de chat `/messages`
 
-#### Messagerie
-- 🔲 **Conversations** : `GET /api/messages?with=:userId`
-- 🔲 **Répondre** : `POST /api/messages`
+#### Messagerie Propriétaire
+- 🔲 Accéder aux conversations depuis `/messages` (partagé avec l'espace étudiant via l'API commune)
+- 🔲 Répondre aux étudiants qui ont contacté via "Contacter le propriétaire"
 
 ---
 
@@ -224,13 +249,18 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 - ✅ Seed script (`backend/scripts/seed_db.ts`) avec 5 annonces géolocalisées + comptes de test
 - ✅ Avatars des colocataires stockés en URLs dans `roommates.avatars[]`
 - ✅ Routes publiques `GET /api/ads` et `GET /api/ads/:id` (sans authentification requise)
+- 🔲 **`Ad.photos[]`** : ajouter ce champ au schéma `Ad` pour la galerie de photos du logement
 - 🔲 **`roommates.roomImages[]`** : ajouter ce champ au schéma `Ad` pour les photos de chaque chambre
+- 🔲 **Route `/api/messages/conversations`** : liste des conversations d'un utilisateur
+- 🔲 **Route `/api/messages/:conversationId`** : messages d'une conversation
+- 🔲 **Route `POST /api/messages`** : envoyer un message
+- 🔲 **Route `GET /api/messages/unread-count`** : nombre de messages non lus (pour le badge)
 - 🔲 **Route `/api/users/:username`** : récupérer un profil public par username
 - 🔲 **Route `/api/favorites`** : CRUD des favoris liés à un étudiant
 - 🔲 **Route `/api/applications`** : gestion complète des dossiers de candidature
-- 🔲 **Route `/api/messages`** : messagerie interne étudiant ↔ propriétaire
 - 🔲 **Upload d'images** : améliorer le stockage (Cloudinary ou dossier local `/uploads`)
 - 🔲 **Pagination** sur `GET /api/ads` pour les grandes listes d'annonces
+- 🔲 **WebSocket** (optionnel) : temps réel pour les messages de chat
 
 ---
 
@@ -251,6 +281,7 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
   latitude: Number,
   longitude: Number,
   image: String,           // photo principale du logement
+  photos: [String],        // TODO: galerie complète (uploadée par le propriétaire)
   features: [String],
   roommates: {
     count: Number,
@@ -263,4 +294,22 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
   rankingScore: Number,
   rankingCount: Number,
 }
+```
+
+---
+
+## 💬 Architecture Messagerie
+
+```
+Étudiant (/property/:id)
+  └─ clique "Contacter le propriétaire"
+       └─ navigate('/messages/:ownerId/:propertyId')
+            └─ Chat.tsx (sidebar + thread)
+                 ├─ GET /api/messages/conversations     [TODO — actuellement MOCK_CONVERSATIONS]
+                 ├─ GET /api/messages/:conversationId   [TODO — actuellement messages dans MOCK]
+                 └─ POST /api/messages                  [TODO — actuellement setState local]
+
+Layout.tsx (navbar)
+  └─ Icône ✉️ + badge → /messages
+       └─ MOCK_UNREAD_MESSAGES = 2                      [TODO — GET /api/messages/unread-count]
 ```

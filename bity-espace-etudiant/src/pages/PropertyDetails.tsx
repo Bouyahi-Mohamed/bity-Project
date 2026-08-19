@@ -5,9 +5,10 @@ import {
   Maximize, Armchair, Layers, Users, User, Home,
   MessageCircle, FileText, CheckCircle2,
   ChevronDown, Wifi, WashingMachine, Refrigerator, Shield,
-  BedDouble, CalendarCheck, Sparkles, Star, Clock, Plus, Check
+  BedDouble, CalendarCheck, Sparkles, Star, Clock, Plus, Check,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Property } from '@/src/types';
 import { authFetch, requireAuth, mapBackendAdToProperty } from '@/src/lib/api';
 import { cn } from '@/src/lib/utils';
@@ -18,6 +19,8 @@ export default function PropertyDetailsPage() {
   const navigate = useNavigate();
   const [property, setProperty] = React.useState<Property | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [currentPhoto, setCurrentPhoto] = React.useState(0);
+  const [direction, setDirection] = React.useState<'left' | 'right'>('right');
 
   React.useEffect(() => {
     requireAuth();
@@ -55,6 +58,29 @@ export default function PropertyDetailsPage() {
 
   if (!property) return <div className="p-10 text-center font-bold text-lg text-error">Propriété non trouvée</div>;
 
+  // TODO: In the future, property.photos[] should be fetched from the database (uploaded by the owner).
+  // For now we use the main image + fake placeholder photos from Unsplash.
+  const fakePhotos = [
+    property.imageUrl,
+    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=1200',
+    'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=1200',
+    'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&q=80&w=1200',
+    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200',
+    'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&q=80&w=1200',
+    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&q=80&w=1200',
+    'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=1200',
+  ];
+
+  const goNext = () => {
+    setDirection('right');
+    setCurrentPhoto(prev => (prev + 1) % fakePhotos.length);
+  };
+
+  const goPrev = () => {
+    setDirection('left');
+    setCurrentPhoto(prev => (prev - 1 + fakePhotos.length) % fakePhotos.length);
+  };
+
   return (
     <div className="max-w-7xl mx-auto w-full pb-32">
       {/* Property Header (Mobile) */}
@@ -69,20 +95,69 @@ export default function PropertyDetailsPage() {
         </div>
       </div>
 
-      {/* Hero Image Gallery */}
-      <section className="relative w-full h-[400px] md:h-[600px] bg-surface-container overflow-hidden">
-        <img 
-          src={property.imageUrl} 
-          alt={property.title} 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute bottom-6 right-6 bg-surface-container-lowest/80 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 text-primary text-xs font-bold shadow-lg border border-outline-variant/20">
-          <Maximize className="w-4 h-4" />
-          <span>1 / 8 PHOTOS</span>
+      {/* Hero Image Gallery — Carousel */}
+      <section className="relative w-full h-[400px] md:h-[600px] bg-surface-container overflow-hidden select-none">
+        {/* Slides */}
+        <AnimatePresence initial={false} mode="popLayout">
+          <motion.img
+            key={currentPhoto}
+            src={fakePhotos[currentPhoto]}
+            alt={`${property.title} — photo ${currentPhoto + 1}`}
+            className="absolute inset-0 w-full h-full object-cover"
+            initial={{ x: direction === 'right' ? '100%' : '-100%', opacity: 0.6 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction === 'right' ? '-100%' : '100%', opacity: 0.6 }}
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            draggable={false}
+          />
+        </AnimatePresence>
+
+        {/* Gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+
+        {/* Left Arrow */}
+        <button
+          onClick={goPrev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-outline-variant/20 hover:bg-surface-container-lowest transition-all active:scale-95"
+          aria-label="Photo précédente"
+        >
+          <ChevronLeft className="w-5 h-5 text-primary" />
+        </button>
+
+        {/* Right Arrow */}
+        <button
+          onClick={goNext}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-outline-variant/20 hover:bg-surface-container-lowest transition-all active:scale-95"
+          aria-label="Photo suivante"
+        >
+          <ChevronRight className="w-5 h-5 text-primary" />
+        </button>
+
+        {/* Dot indicators */}
+        <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+          {fakePhotos.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => { setDirection(idx > currentPhoto ? 'right' : 'left'); setCurrentPhoto(idx); }}
+              className={cn(
+                'rounded-full transition-all duration-300',
+                idx === currentPhoto
+                  ? 'w-5 h-2 bg-white shadow'
+                  : 'w-2 h-2 bg-white/50 hover:bg-white/80'
+              )}
+              aria-label={`Aller à la photo ${idx + 1}`}
+            />
+          ))}
         </div>
-        
+
+        {/* Photo counter */}
+        <div className="absolute bottom-6 right-6 bg-surface-container-lowest/80 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 text-primary text-xs font-bold shadow-lg border border-outline-variant/20 z-10">
+          <Maximize className="w-4 h-4" />
+          <span>{currentPhoto + 1} / {fakePhotos.length} PHOTOS</span>
+        </div>
+
         {/* Floating Verified Badge */}
-        <div className="absolute top-6 left-6 bg-surface-container-lowest shadow-2xl px-4 py-2 rounded-full flex items-center gap-2 text-secondary border border-secondary/10">
+        <div className="absolute top-6 left-6 bg-surface-container-lowest shadow-2xl px-4 py-2 rounded-full flex items-center gap-2 text-secondary border border-secondary/10 z-10">
           <CheckCircle2 className="w-5 h-5" />
           <span className="text-xs font-bold uppercase tracking-wider">Annonce Vérifiée</span>
         </div>
@@ -616,7 +691,7 @@ export default function PropertyDetailsPage() {
 
               <div className="space-y-4">
                 <button 
-                  onClick={() => navigate(`/student/${property.landlord.id || property.landlord.name.split(' ')[0].toLowerCase()}`)}
+                  onClick={() => navigate(`/messages/${property.landlord.id || 'owner'}/${property.id}`)}
                   className="w-full bg-secondary text-on-secondary font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl hover:bg-secondary/90 active:scale-[0.98]"
                 >
                   <MessageCircle className="w-5 h-5" /> Contacter le propriétaire

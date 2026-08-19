@@ -24,7 +24,7 @@ router.put('/profile/avatar', authMiddleware, upload.single('avatar'), updateAva
 router.get('/users', authMiddleware, searchUsers);
 
 // Public/student viewable user profiles
-router.get('/users/:id', authMiddleware, getUserById);
+router.get('/users/:id', getUserById);
 
 // Rate a user (roommate or owner)
 router.post('/users/rate', authMiddleware, rateUser);
