@@ -75,6 +75,30 @@ export default function StudentProfilePage() {
             { title: 'El Menzah 5', subtitle: 'Recherche active', time: 'Il y a 5 jours', type: 'search' },
           ]
         };
+      case 'sarah':
+      case 'sarah.bensalah':
+        return {
+          name: 'Sarah Ben Salah',
+          avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
+          status: 'Propriétaire Vérifiée',
+          isOwner: true,
+          trustScore: 4.8,
+          reviewsCount: 12,
+          // TODO: In the future, response rate will be calculated dynamically
+          responseRate: '100%',
+          email: 'sarah.bensalah@gmail.com',
+          phone: '+216 98 765 432',
+          personalInfo: [
+            { label: 'Type de compte', value: 'Bailleur Certifié' },
+            { label: 'Taux de réponse', value: '100% (Répond généralement en moins de 30 min)' },
+            { label: 'Logements actifs', value: '1 colocation active' },
+            { label: 'Membre depuis', value: '2023' },
+          ],
+          interests: ['Gestion locative', 'Architecture', 'Colocation étudiante'],
+          recentActivity: [
+            { title: 'S+3 Colocation Féminine El Menzah 5', subtitle: 'Annonce certifiée', time: 'En ligne', type: 'search' },
+          ]
+        };
       case 'nourdine':
       case 'nourdine.mansour':
         return {
@@ -96,8 +120,8 @@ export default function StudentProfilePage() {
           ],
           interests: ['Immobilier', 'Gestion locative', 'Rénovation'],
           recentActivity: [
-            { title: 'S+3 Colocation El Menzah 5', subtitle: 'Annonce active', time: 'En ligne', type: 'search' },
-            { title: 'S+1 Centre Ville', subtitle: 'Annonce active', time: 'En ligne', type: 'search' },
+            { title: 'S+1 Moderne Centre Ville', subtitle: 'Annonce active', time: 'En ligne', type: 'search' },
+            { title: 'S+2 Proche ESPRIT & Sesame', subtitle: 'Annonce active', time: 'En ligne', type: 'search' },
           ]
         };
       default:

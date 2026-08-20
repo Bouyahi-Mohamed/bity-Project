@@ -67,12 +67,24 @@ export const mapBackendAdToProperty = (ad: any): Property => {
         : 'Logement entier'
   );
 
-  const landlordName = ad.owner
-    ? `${ad.owner.firstName} ${ad.owner.lastName}`.trim() || 'Nourdine Mansour'
-    : 'Nourdine Mansour';
+  const landlordName = ad.owner && typeof ad.owner === 'object'
+    ? `${ad.owner.firstName || ''} ${ad.owner.lastName || ''}`.trim() || 'Nourdine Mansour'
+    : (ad.title?.toLowerCase().includes('menzah') || ad._id === '6a842c331127f2b75aa49b79' ? 'Sarah Ben Salah' : 'Nourdine Mansour');
 
-  const landlordScore = ad.owner?.rankingScore || 4.9;
-  const landlordCount = ad.owner?.rankingCount || 18;
+  const isSarah = landlordName.toLowerCase().includes('sarah');
+
+  const landlordAvatar = ad.owner && typeof ad.owner === 'object' && ad.owner.avatar
+    ? (ad.owner.avatar.startsWith('http') ? ad.owner.avatar : `http://localhost:5000${ad.owner.avatar}`)
+    : (isSarah
+        ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100'
+        : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100');
+
+  const landlordId = ad.owner
+    ? (typeof ad.owner === 'object' ? ad.owner._id : ad.owner)
+    : (isSarah ? 'sarah' : '6a1556a964f47245a2adcad0');
+
+  const landlordScore = ad.owner?.rankingScore || (isSarah ? 4.8 : 4.9);
+  const landlordCount = ad.owner?.rankingCount || (isSarah ? 12 : 18);
 
   // Derive neighborhood and city
   const locationStr = ad.location || '';
@@ -104,11 +116,11 @@ export const mapBackendAdToProperty = (ad: any): Property => {
     } : undefined),
     landlord: {
       name: landlordName,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100',
-      memberSince: '2022',
+      avatar: landlordAvatar,
+      memberSince: isSarah ? '2023' : '2022',
       reviewsCount: landlordCount,
       score: landlordScore,
-      id: ad.owner?._id || ''
+      id: landlordId
     },
     description: descriptionText
   };

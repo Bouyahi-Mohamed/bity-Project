@@ -177,8 +177,10 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 
 #### 💬 Messagerie — Page Chat (`/messages`)
 - ✅ Page `/messages` créée avec sidebar conversations + thread de messages (`Chat.tsx`)
-- ✅ Navigation `/messages/:ownerId/:propertyId` — ouvre directement la conversation liée à une annonce
-- ✅ Bouton **"Contacter le propriétaire"** redirige vers `/messages/:ownerId/:propertyId`
+- ✅ Navigation `/messages/:ownerId/:propertyId` — ouvre directement la conversation liée au **vrai propriétaire** de l'annonce :
+  - `S+3 Colocation Féminine El Menzah 5` (`6a842c331127f2b75aa49b79`) → Ouvre la discussion avec **Sarah Ben Salah**
+  - `S+1 Moderne Centre Ville` (`6a842c331127f2b75aa49b7b`) → Ouvre la discussion avec **Nourdine Mansour**
+- ✅ Bouton **"Contacter le propriétaire"** redirige vers `/messages/:ownerId/:propertyId` avec correspondance automatique
 - ✅ Icône ✉️ avec badge de messages non lus dans la **navbar desktop** (près de l'avatar)
 - ✅ Onglet **Messages** avec badge dans la **barre mobile** (bottom nav)
 - ✅ Envoi de messages dans la conversation, animations, responsive mobile/desktop
@@ -189,6 +191,7 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
 - 🔲 **Badge non lus réel** : remplacer `MOCK_UNREAD_MESSAGES = 2` par `GET /api/messages/unread-count`
   - Fichier : `bity-espace-etudiant/src/components/Layout.tsx` → constante `MOCK_UNREAD_MESSAGES`
 - 🔲 **Temps réel** : implémenter WebSocket ou polling pour les nouveaux messages
+- 🔲 **TODO Espace Propriétaire (Chat Multi-Demandeurs)** : Dans l'espace propriétaire, le bailleur disposera d'une messagerie centralisée lui permettant de recevoir les messages et échanger en direct avec tous les étudiants demandeurs de ses annonces.
 
 ---
 
