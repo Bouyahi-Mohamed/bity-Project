@@ -135,6 +135,15 @@ Cette section liste toutes les fonctionnalités à connecter à la base de donn�
   - **À faire** : le propriétaire uploade ses photos → stockées dans `Ad.photos: [String]`
   - **À faire** : remplacer `fakePhotos` par `property.photos` (tableau d'URLs depuis la BDD)
 
+#### Types de Publication — Mode Colocation vs Mode 1 Personne (`/property/:id`)
+- ✅ **Mode Colocation** (`Chambre en colocation`) :
+  - Section "La Colocation" avec nombre de chambres, avatars interactifs (liens vers profil colocataire), et légende de disponibilité (🔴 Occupée, 🟠 Sortie le 28-09-26, 🟢 Libre).
+  - Section "Description des chambres" avec cartes individuelles par chambre, photos, équipements et boutons de réservation/dépôt de dossier.
+- ✅ **Mode 1 Personne / Logement Entier** (`Logement entier`, `Studio`, `S+1`...) :
+  - Section "Le Logement Entier" avec indicateur global de statut (🔴 Occupé, 🟠 Sortie le 28-09-26 réservable, 🟢 Libre immédiatement).
+  - Section "Description du logement" avec carte complète, tarif, surface, équipements, et action de réservation/candidature.
+- 🔲 **TODO Espace Propriétaire** : Lors de la publication d'un bien dans l'Espace Propriétaire, le bailleur choisira le mode de publication (Colocation vs Logement Entier 1 personne) et définira les statuts de disponibilité de chaque chambre ou du logement global.
+
 #### Section Colocation — Images des Chambres (`PropertyDetails.tsx`)
 > ⚠️ **TODO IMPORTANT** : Les images des chambres individuelles (Chambre 1, 2, 3) sont actuellement des **images fictives Unsplash** (tableau `fakeRoomImages`).
 >

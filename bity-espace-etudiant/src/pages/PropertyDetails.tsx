@@ -21,6 +21,8 @@ export default function PropertyDetailsPage() {
   const [loading, setLoading] = React.useState(true);
   const [currentPhoto, setCurrentPhoto] = React.useState(0);
   const [direction, setDirection] = React.useState<'left' | 'right'>('right');
+  const [entirePlacePhotoIndex, setEntirePlacePhotoIndex] = React.useState(0);
+  const [entirePlaceDirection, setEntirePlaceDirection] = React.useState<'left' | 'right'>('right');
 
   React.useEffect(() => {
     requireAuth();
@@ -257,54 +259,79 @@ export default function PropertyDetailsPage() {
             </div>
           </section>
 
-          {/* Roommates Card (STRICTLY ONLY for Colocation) */}
+          {/* ════════════════════════════════════════════════════════════════════════════ */}
+          {/* CASE A: COLOCATION MODE (Chambre en colocation) */}
+          {/* ════════════════════════════════════════════════════════════════════════════ */}
           {property.type === 'Chambre en colocation' && property.roommates && property.roommates.count > 0 && (
-            <section className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 ambient-shadow space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-2xl font-bold text-primary">La Colocation</h2>
-                <span className="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/20">
-                  {property.roommates.count} chambres au total
-                </span>
-              </div>
+            <>
+              {/* Roommates Card (STRICTLY ONLY for Colocation) */}
+              <section className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 ambient-shadow space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-2xl font-bold text-primary">La Colocation</h2>
+                  <span className="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/20">
+                    {property.roommates.count} chambres au total
+                  </span>
+                </div>
 
-              <div className="bg-surface-bright p-5 rounded-xl border border-outline-variant/20 select-none space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-                  {/* Avatars row with clean subtle status dot */}
-                  <div className="flex -space-x-3">
-                    {(() => {
-                      const avatarUrls = property.roommates.avatars || [];
-                      const detailsPart = (property.roommates.details || '').split('•')[0];
-                      const roommateNames = detailsPart.split(',').map(n => n.trim()).filter(Boolean);
+                <div className="bg-surface-bright p-5 rounded-xl border border-outline-variant/20 select-none space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+                    {/* Avatars row with clean subtle status dot */}
+                    <div className="flex -space-x-3">
+                      {(() => {
+                        const avatarUrls = property.roommates.avatars || [];
+                        const detailsPart = (property.roommates.details || '').split('•')[0];
+                        const roommateNames = detailsPart.split(',').map(n => n.trim()).filter(Boolean);
 
-                      return avatarUrls.map((avatar, i) => {
-                        const isFree = avatar === 'FREE';
-                        const isLeaving = avatar.startsWith('LEAVING:') || (!isFree && i === 1 && avatarUrls.length >= 3);
-                        const cleanAvatar = avatar.replace('LEAVING:', '');
-                        const name = roommateNames[i] || '';
-                        const avatarSrc = !isFree && cleanAvatar.startsWith('http') ? cleanAvatar : null;
+                        return avatarUrls.map((avatar, i) => {
+                          const isFree = avatar === 'FREE';
+                          const isLeaving = avatar.startsWith('LEAVING:') || (!isFree && i === 1 && avatarUrls.length >= 3);
+                          const cleanAvatar = avatar.replace('LEAVING:', '');
+                          const name = roommateNames[i] || '';
+                          const avatarSrc = !isFree && cleanAvatar.startsWith('http') ? cleanAvatar : null;
 
-                        if (isFree) {
-                          return (
-                            <div
-                              key={i}
-                              className="relative"
-                              title="Chambre libre immédiatement"
-                            >
-                              <div className="w-12 h-12 rounded-full border-2 border-surface-container-lowest bg-surface-container flex items-center justify-center text-on-surface-variant shadow-sm">
-                                <Plus className="w-5 h-5 text-secondary" />
+                          if (isFree) {
+                            return (
+                              <div
+                                key={i}
+                                className="relative"
+                                title="Chambre libre immédiatement"
+                              >
+                                <div className="w-12 h-12 rounded-full border-2 border-surface-container-lowest bg-surface-container flex items-center justify-center text-on-surface-variant shadow-sm">
+                                  <Plus className="w-5 h-5 text-secondary" />
+                                </div>
+                                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-surface-container-lowest shadow" />
                               </div>
-                              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-surface-container-lowest shadow" />
-                            </div>
-                          );
-                        }
+                            );
+                          }
 
-                        if (isLeaving) {
+                          if (isLeaving) {
+                            return (
+                              <div
+                                key={i}
+                                onClick={() => navigate(`/student/${name.toLowerCase()}`)}
+                                className="relative cursor-pointer hover:scale-105 hover:z-20 transition-all"
+                                title={`${name} — Disponible à partir du 28-09-26 (Réservable)`}
+                              >
+                                <div className="w-12 h-12 rounded-full border-2 border-surface-container-lowest overflow-hidden shadow-sm">
+                                  {avatarSrc ? (
+                                    <img src={avatarSrc} alt={name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <span className="w-full h-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+                                      {name.charAt(0).toUpperCase()}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-surface-container-lowest shadow" />
+                              </div>
+                            );
+                          }
+
                           return (
                             <div
                               key={i}
                               onClick={() => navigate(`/student/${name.toLowerCase()}`)}
                               className="relative cursor-pointer hover:scale-105 hover:z-20 transition-all"
-                              title={`${name} — Disponible à partir du 28-09-26 (Réservable)`}
+                              title={`${name} — Occupée`}
                             >
                               <div className="w-12 h-12 rounded-full border-2 border-surface-container-lowest overflow-hidden shadow-sm">
                                 {avatarSrc ? (
@@ -315,330 +342,537 @@ export default function PropertyDetailsPage() {
                                   </span>
                                 )}
                               </div>
-                              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-surface-container-lowest shadow" />
+                              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-surface-container-lowest shadow" />
                             </div>
+                          );
+                        });
+                      })()}
+                    </div>
+
+                    {/* Summary info */}
+                    <div className="flex-1">
+                      {(() => {
+                        const avatarUrls = property.roommates.avatars || [];
+                        const freeCount = avatarUrls.filter(a => a === 'FREE').length;
+                        const detailsPart = (property.roommates.details || '').split('•')[0];
+                        const roommateNames = detailsPart.split(',').map(n => n.trim()).filter(Boolean);
+                        const suffix = (property.roommates.details || '').includes('•')
+                          ? property.roommates.details.split('•')[1]?.trim()
+                          : 'Étudiantes';
+
+                        return (
+                          <>
+                            <div className="font-bold text-base text-primary">
+                              {property.roommates.count - freeCount}/{property.roommates.count} chambres occupées
+                            </div>
+                            <div className="text-on-surface-variant font-medium text-sm flex flex-wrap items-center gap-1 mt-1">
+                              {roommateNames.map((name, idx) => (
+                                <span key={name} className="inline-flex items-center">
+                                  <button
+                                    onClick={() => navigate(`/student/${name.toLowerCase()}`)}
+                                    className="text-secondary hover:underline font-bold transition-colors cursor-pointer"
+                                  >
+                                    {name}
+                                  </button>
+                                  {idx < roommateNames.length - 1 && <span className="text-outline font-normal mx-1.5">•</span>}
+                                </span>
+                              ))}
+                              {suffix && <span className="text-outline font-normal ml-1">• {suffix}</span>}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Clean minimalist legend */}
+                  <div className="flex flex-wrap items-center gap-5 pt-3 border-t border-outline-variant/15 text-xs text-on-surface-variant">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" /> 
+                      Occupée
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> 
+                      Sortie le <strong className="font-bold">28-09-26</strong> (Réservable)
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> 
+                      Libre
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-on-surface-variant text-sm leading-relaxed">
+                  Ambiance calme et studieuse. Règle de cautionnement : préavis d'un mois annoncé avant le départ permettant la réservation anticipée aux nouveaux étudiants.
+                </p>
+              </section>
+
+              {/* Description des chambres */}
+              {(() => {
+                const detailsPart = (property.roommates.details || '').split('•')[0];
+                const roommateNames = detailsPart.split(',').map(n => n.trim()).filter(Boolean);
+                const avatarUrls = property.roommates.avatars || [];
+                const roomSurface = Math.round((property.surface || 90) / property.roommates.count);
+
+                // TODO: In the future, these room images should be fetched from the database per room, instead of hardcoded placeholders.
+                const fakeRoomImages = [
+                  'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=400',
+                  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=400',
+                  'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=400',
+                  'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&q=80&w=400'
+                ];
+
+                return (
+                  <section className="space-y-5">
+                    <div className="flex items-center justify-between">
+                      <h2 className="font-display text-2xl font-bold text-primary">Description des chambres</h2>
+                      <span className="text-xs text-on-surface-variant font-medium">Tarif par chambre</span>
+                    </div>
+
+                    <div className="space-y-4">
+                      {avatarUrls.map((avatar, i) => {
+                        const isFree = avatar === 'FREE';
+                        const isLeaving = avatar.startsWith('LEAVING:') || (!isFree && i === 1 && avatarUrls.length >= 3);
+                        const cleanAvatar = avatar.replace('LEAVING:', '');
+                        const name = roommateNames[i] || `Chambre ${i + 1}`;
+
+                        // CASE 1: FREE ROOM (🟢)
+                        if (isFree) {
+                          return (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, y: 16 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.08 }}
+                              className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
+                            >
+                              {/* Photo */}
+                              <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
+                                <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
+                                <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                  Libre
+                                </span>
+                              </div>
+
+                              {/* Details */}
+                              <div className="flex-1 p-6 flex flex-col gap-4">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div>
+                                    <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
+                                      Chambre {i + 1} — {roomSurface} m²
+                                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" title="Libre" />
+                                    </h3>
+                                    <p className="text-secondary font-bold text-sm mt-0.5">Chambre libre · Disponible immédiatement</p>
+                                  </div>
+                                  <div className="text-right flex-shrink-0">
+                                    <span className="font-display text-2xl font-bold text-secondary">{property.price} TND</span>
+                                    <span className="text-on-surface-variant text-xs font-medium block">/ mois</span>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-3 text-xs font-bold text-on-surface-variant">
+                                  <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                    <Armchair className="w-3.5 h-3.5 text-secondary" /> Meublée
+                                  </span>
+                                  <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                    <User className="w-3.5 h-3.5 text-secondary" /> 1 pers. max.
+                                  </span>
+                                  <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                    <Star className="w-3.5 h-3.5 text-secondary" /> Charges comprises
+                                  </span>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/10">
+                                  <span className="text-on-surface-variant flex items-center gap-1.5 text-xs font-medium">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                                    Disponible dès maintenant
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <button className="px-4 py-2 rounded-xl border border-outline-variant text-primary text-xs font-bold hover:border-secondary hover:text-secondary transition-all">
+                                      Voir détails
+                                    </button>
+                                    <button className="px-4 py-2 rounded-xl bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 active:scale-[0.98] transition-all shadow">
+                                      Déposer un dossier
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
                           );
                         }
 
-                        return (
-                          <div
-                            key={i}
-                            onClick={() => navigate(`/student/${name.toLowerCase()}`)}
-                            className="relative cursor-pointer hover:scale-105 hover:z-20 transition-all"
-                            title={`${name} — Occupée`}
-                          >
-                            <div className="w-12 h-12 rounded-full border-2 border-surface-container-lowest overflow-hidden shadow-sm">
-                              {avatarSrc ? (
-                                <img src={avatarSrc} alt={name} className="w-full h-full object-cover" />
-                              ) : (
-                                <span className="w-full h-full bg-primary flex items-center justify-center text-white font-bold text-sm">
-                                  {name.charAt(0).toUpperCase()}
+                        // CASE 2: LEAVING ROOM (🟠)
+                        if (isLeaving) {
+                          return (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, y: 16 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.08 }}
+                              className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
+                            >
+                              {/* Photo */}
+                              <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
+                                <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
+                                <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                                  Sortie le 28-09-26
                                 </span>
-                              )}
+                              </div>
+
+                              {/* Details */}
+                              <div className="flex-1 p-6 flex flex-col gap-4">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div>
+                                    <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
+                                      Chambre {i + 1} — {roomSurface} m²
+                                      <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" title="Sortie le 28-09-26" />
+                                    </h3>
+                                    <p className="text-on-surface-variant text-sm font-medium">
+                                      Occupée par <button onClick={() => navigate(`/student/${name.toLowerCase()}`)} className="text-secondary font-bold hover:underline transition-colors">{name}</button> · Préavis déposé (Sortie le <strong className="font-bold">28-09-26</strong>)
+                                    </p>
+                                  </div>
+                                  <div className="text-right flex-shrink-0">
+                                    <span className="font-display text-2xl font-bold text-secondary">{property.price} TND</span>
+                                    <span className="text-on-surface-variant text-xs font-medium block">/ mois</span>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-3 text-xs font-bold text-on-surface-variant">
+                                  <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                    <Armchair className="w-3.5 h-3.5 text-secondary" /> Meublée
+                                  </span>
+                                  <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                    <User className="w-3.5 h-3.5 text-secondary" /> 1 pers. max.
+                                  </span>
+                                  <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                    <Star className="w-3.5 h-3.5 text-secondary" /> Charges comprises
+                                  </span>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/10">
+                                  <span className="text-on-surface-variant flex items-center gap-1.5 text-xs font-medium">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+                                    Disponible à partir du <strong className="font-bold">28-09-26</strong> 
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => navigate(`/student/${name.toLowerCase()}`)}
+                                      className="text-secondary hover:underline text-xs font-bold transition-colors mr-1"
+                                    >
+                                      Profil de {name}
+                                    </button>
+                                    <button className="px-4 py-2 rounded-xl border border-outline-variant text-primary text-xs font-bold hover:border-secondary hover:text-secondary transition-all">
+                                      Voir détails
+                                    </button>
+                                    <button className="px-4 py-2 rounded-xl bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 active:scale-[0.98] transition-all shadow">
+                                      Réserver la chambre
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        }
+
+                        // CASE 3: OCCUPIED ROOM (🔴)
+                        return (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.08 }}
+                            className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
+                          >
+                            {/* Photo */}
+                            <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
+                              <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
+                              <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
+                                <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                                Occupée
+                              </span>
                             </div>
-                            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-surface-container-lowest shadow" />
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
 
-                  {/* Summary info */}
-                  <div className="flex-1">
-                    {(() => {
-                      const avatarUrls = property.roommates.avatars || [];
-                      const freeCount = avatarUrls.filter(a => a === 'FREE').length;
-                      const leavingCount = avatarUrls.filter((a, idx) => a.startsWith('LEAVING:') || (a !== 'FREE' && idx === 1 && avatarUrls.length >= 3)).length;
-                      const detailsPart = (property.roommates.details || '').split('•')[0];
-                      const roommateNames = detailsPart.split(',').map(n => n.trim()).filter(Boolean);
-                      const suffix = (property.roommates.details || '').includes('•')
-                        ? property.roommates.details.split('•')[1]?.trim()
-                        : 'Étudiantes';
+                            {/* Details */}
+                            <div className="flex-1 p-6 flex flex-col gap-4">
+                              <div className="flex items-start justify-between gap-4">
+                                <div>
+                                  <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
+                                    Chambre {i + 1} — {roomSurface} m²
+                                    <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" title="Occupée" />
+                                  </h3>
+                                  <p className="text-on-surface-variant text-sm font-medium">
+                                    Occupée par <button onClick={() => navigate(`/student/${name.toLowerCase()}`)} className="text-secondary font-bold hover:underline transition-colors">{name}</button>
+                                  </p>
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                  <span className="font-display text-2xl font-bold text-secondary">{property.price} TND</span>
+                                  <span className="text-on-surface-variant text-xs font-medium block">/ mois</span>
+                                </div>
+                              </div>
 
-                      return (
-                        <>
-                          <div className="font-bold text-base text-primary">
-                            {property.roommates.count - freeCount}/{property.roommates.count} chambres occupées
-                          </div>
-                          <div className="text-on-surface-variant font-medium text-sm flex flex-wrap items-center gap-1 mt-1">
-                            {roommateNames.map((name, idx) => (
-                              <span key={name} className="inline-flex items-center">
+                              <div className="flex flex-wrap gap-3 text-xs font-bold text-on-surface-variant">
+                                <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                  <Armchair className="w-3.5 h-3.5 text-secondary" /> Meublée
+                                </span>
+                                <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                  <User className="w-3.5 h-3.5 text-secondary" /> 1 pers. max.
+                                </span>
+                                <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                  <Star className="w-3.5 h-3.5 text-secondary" /> Charges comprises
+                                </span>
+                              </div>
+
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/10">
+                                <span className="text-on-surface-variant flex items-center gap-1.5 text-xs font-medium">
+                                  <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
+                                  Chambre non disponible
+                                </span>
                                 <button
                                   onClick={() => navigate(`/student/${name.toLowerCase()}`)}
-                                  className="text-secondary hover:underline font-bold transition-colors cursor-pointer"
+                                  className="text-secondary hover:underline text-xs font-bold transition-colors"
                                 >
-                                  {name}
+                                  Voir le profil de {name}
                                 </button>
-                                {idx < roommateNames.length - 1 && <span className="text-outline font-normal mx-1.5">•</span>}
-                              </span>
-                            ))}
-                            {suffix && <span className="text-outline font-normal ml-1">• {suffix}</span>}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-
-                {/* Clean minimalist legend */}
-                <div className="flex flex-wrap items-center gap-5 pt-3 border-t border-outline-variant/15 text-xs text-on-surface-variant">
-                  <span className="flex items-center gap-1.5 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" /> 
-                    Occupée
-                  </span>
-                  <span className="flex items-center gap-1.5 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> 
-                    Sortie le <strong className="font-bold">28-09-26</strong> (Réservable)
-                  </span>
-                  <span className="flex items-center gap-1.5 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> 
-                    Libre
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-on-surface-variant text-sm leading-relaxed">
-                Ambiance calme et studieuse. Règle de cautionnement : préavis d'un mois annoncé avant le départ permettant la réservation anticipée aux nouveaux étudiants.
-              </p>
-            </section>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })()}
+            </>
           )}
 
-          {/* Description des chambres (STRICTLY ONLY for Colocation) */}
-          {property.type === 'Chambre en colocation' && property.roommates && property.roommates.count > 0 && (() => {
-            const detailsPart = (property.roommates.details || '').split('•')[0];
-            const roommateNames = detailsPart.split(',').map(n => n.trim()).filter(Boolean);
-            const avatarUrls = property.roommates.avatars || [];
-            const roomSurface = Math.round((property.surface || 90) / property.roommates.count);
-
-            // TODO: In the future, these room images should be fetched from the database per room, instead of hardcoded placeholders.
-            const fakeRoomImages = [
-              'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=400',
-              'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=400',
-              'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=400',
-              'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&q=80&w=400'
-            ];
+          {/* ════════════════════════════════════════════════════════════════════════════ */}
+          {/* CASE B: MODE 1 PERSONNE / LOGEMENT ENTIER / STUDIO (Entire Place) */}
+          {/* ════════════════════════════════════════════════════════════════════════════ */}
+          {property.type !== 'Chambre en colocation' && (() => {
+            // Determine availability status for 1-Person / Entire Place:
+            // Check description/features or property ID
+            const descAndFeatures = `${property.description || ''} ${(property.features || []).join(' ')}`.toLowerCase();
+            const isEntirePlaceLeaving = descAndFeatures.includes('sortie') || descAndFeatures.includes('préavis') || descAndFeatures.includes('28-09-26') || id?.toLowerCase() === '6a842c331127f2b75aa49b7b';
+            const isEntirePlaceOccupied = descAndFeatures.includes('occupé') && !isEntirePlaceLeaving;
+            const entirePlaceStatus = isEntirePlaceLeaving ? 'LEAVING' : (isEntirePlaceOccupied ? 'OCCUPIED' : 'FREE');
 
             return (
-              <section className="space-y-5">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-display text-2xl font-bold text-primary">Description des chambres</h2>
-                  <span className="text-xs text-on-surface-variant font-medium">Tarif par chambre</span>
-                </div>
+              <>
+                {/* 1. Entire Place Status & Rule Card */}
+                <section className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 ambient-shadow space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-display text-2xl font-bold text-primary">Le Logement Entier</h2>
+                    <span className="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/20">
+                      {property.type || 'Logement entier'} · 1 personne
+                    </span>
+                  </div>
 
-                <div className="space-y-4">
-                  {avatarUrls.map((avatar, i) => {
-                    const isFree = avatar === 'FREE';
-                    const isLeaving = avatar.startsWith('LEAVING:') || (!isFree && i === 1 && avatarUrls.length >= 3);
-                    const cleanAvatar = avatar.replace('LEAVING:', '');
-                    const name = roommateNames[i] || `Chambre ${i + 1}`;
-                    const avatarSrc = !isFree && cleanAvatar.startsWith('http') ? cleanAvatar : null;
+                  <div className="bg-surface-bright p-5 rounded-xl border border-outline-variant/20 select-none space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+                      {/* Status Indicator Icon */}
+                      <div className="relative">
+                        <div className="w-12 h-12 rounded-full border-2 border-surface-container-lowest bg-surface-container flex items-center justify-center text-on-surface-variant shadow-sm">
+                          <Home className="w-6 h-6 text-secondary" />
+                        </div>
+                        <span className={cn(
+                          "absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-surface-container-lowest shadow",
+                          entirePlaceStatus === 'FREE' ? "bg-emerald-500" : (entirePlaceStatus === 'LEAVING' ? "bg-amber-500" : "bg-rose-500")
+                        )} />
+                      </div>
 
-                    // CASE 1: FREE ROOM (🟢)
-                    if (isFree) {
-                      return (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: 16 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.08 }}
-                          className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
-                        >
-                          {/* Photo */}
-                          <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
-                            <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
-                            <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                              Libre
-                            </span>
-                          </div>
+                      {/* Summary info */}
+                      <div className="flex-1">
+                        <div className="font-bold text-base text-primary">
+                          {entirePlaceStatus === 'FREE' && 'Disponible immédiatement (Libre)'}
+                          {entirePlaceStatus === 'LEAVING' && 'Sortie prévue le 28-09-26 · Réservable'}
+                          {entirePlaceStatus === 'OCCUPIED' && 'Actuellement occupé'}
+                        </div>
+                        <div className="text-on-surface-variant font-medium text-sm mt-1">
+                          {entirePlaceStatus === 'FREE' && 'Ce logement est vacant et prêt pour un emménagement immédiat.'}
+                          {entirePlaceStatus === 'LEAVING' && 'Préavis de départ déposé par l\'occupant actuel. Vous pouvez réserver dès maintenant pour sécuriser la rentrée !'}
+                          {entirePlaceStatus === 'OCCUPIED' && 'Ce logement est actuellement sous bail de location.'}
+                        </div>
+                      </div>
+                    </div>
 
-                          {/* Details */}
-                          <div className="flex-1 p-6 flex flex-col gap-4">
-                            <div className="flex items-start justify-between gap-4">
-                              <div>
-                                <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
-                                  Chambre {i + 1} — {roomSurface} m²
-                                  <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" title="Libre" />
-                                </h3>
-                                <p className="text-secondary font-bold text-sm mt-0.5">Chambre libre · Disponible immédiatement</p>
-                              </div>
-                              <div className="text-right flex-shrink-0">
-                                <span className="font-display text-2xl font-bold text-secondary">{property.price} TND</span>
-                                <span className="text-on-surface-variant text-xs font-medium block">/ mois</span>
-                              </div>
-                            </div>
+                  </div>
 
-                            <div className="flex flex-wrap gap-3 text-xs font-bold text-on-surface-variant">
-                              <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                                <Armchair className="w-3.5 h-3.5 text-secondary" /> Meublée
-                              </span>
-                              <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                                <User className="w-3.5 h-3.5 text-secondary" /> 1 pers. max.
-                              </span>
-                              <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                                <Star className="w-3.5 h-3.5 text-secondary" /> Charges comprises
-                              </span>
-                            </div>
+                  <p className="text-on-surface-variant text-sm leading-relaxed">
+                    Logement individuel loué en direct avec le propriétaire. Règle de cautionnement : préavis d'un mois annoncé avant le départ permettant la réservation anticipée aux nouveaux étudiants.
+                  </p>
+                </section>
 
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/10">
-                              <span className="text-on-surface-variant flex items-center gap-1.5 text-xs font-medium">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-                                Disponible dès maintenant
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <button className="px-4 py-2 rounded-xl border border-outline-variant text-primary text-xs font-bold hover:border-secondary hover:text-secondary transition-all">
-                                  Voir détails
-                                </button>
-                                <button className="px-4 py-2 rounded-xl bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 active:scale-[0.98] transition-all shadow">
-                                  Déposer un dossier
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    }
+                {/* 2. Description du logement (Entire Place Card) */}
+                <section className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-display text-2xl font-bold text-primary">Description du logement</h2>
+                    <span className="text-xs text-on-surface-variant font-medium">Tarif total</span>
+                  </div>
 
-                    // CASE 2: LEAVING ROOM (🟠)
-                    if (isLeaving) {
-                      return (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: 16 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.08 }}
-                          className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
-                        >
-                          {/* Photo */}
-                          <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
-                            <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
-                            <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                              Sortie le 28-09-26
-                            </span>
-                          </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
+                  >
+                    {/* Photo Carousel Container with Left/Right Arrows & Indicators */}
+                    <div className="relative w-full sm:w-64 h-56 sm:h-auto min-h-[220px] flex-shrink-0 bg-surface-container overflow-hidden group select-none">
+                      <AnimatePresence initial={false} mode="popLayout">
+                        <motion.img 
+                          key={entirePlacePhotoIndex}
+                          src={fakePhotos[entirePlacePhotoIndex % fakePhotos.length]} 
+                          alt={`${property.title} — photo ${entirePlacePhotoIndex + 1}`} 
+                          className="absolute inset-0 w-full h-full object-cover"
+                          initial={{ x: entirePlaceDirection === 'right' ? '100%' : '-100%', opacity: 0.6 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          exit={{ x: entirePlaceDirection === 'right' ? '-100%' : '100%', opacity: 0.6 }}
+                          transition={{ duration: 0.3, ease: 'easeInOut' }}
+                          draggable={false}
+                        />
+                      </AnimatePresence>
 
-                          {/* Details */}
-                          <div className="flex-1 p-6 flex flex-col gap-4">
-                            <div className="flex items-start justify-between gap-4">
-                              <div>
-                                <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
-                                  Chambre {i + 1} — {roomSurface} m²
-                                  <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" title="Sortie le 28-09-26" />
-                                </h3>
-                                <p className="text-on-surface-variant text-sm font-medium">
-                                  Occupée par <button onClick={() => navigate(`/student/${name.toLowerCase()}`)} className="text-secondary font-bold hover:underline transition-colors">{name}</button> · Préavis déposé (Sortie le <strong className="font-bold">28-09-26</strong>)
-                                </p>
-                              </div>
-                              <div className="text-right flex-shrink-0">
-                                <span className="font-display text-2xl font-bold text-secondary">{property.price} TND</span>
-                                <span className="text-on-surface-variant text-xs font-medium block">/ mois</span>
-                              </div>
-                            </div>
+                      {/* Subtle gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
-                            <div className="flex flex-wrap gap-3 text-xs font-bold text-on-surface-variant">
-                              <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                                <Armchair className="w-3.5 h-3.5 text-secondary" /> Meublée
-                              </span>
-                              <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                                <User className="w-3.5 h-3.5 text-secondary" /> 1 pers. max.
-                              </span>
-                              <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                                <Star className="w-3.5 h-3.5 text-secondary" /> Charges comprises
-                              </span>
-                            </div>
+                      {/* Status Badge */}
+                      <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow z-10">
+                        <span className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          entirePlaceStatus === 'FREE' ? "bg-emerald-400" : (entirePlaceStatus === 'LEAVING' ? "bg-amber-400" : "bg-rose-400")
+                        )} />
+                        {entirePlaceStatus === 'FREE' && 'Libre'}
+                        {entirePlaceStatus === 'LEAVING' && 'Sortie le 28-09-26'}
+                        {entirePlaceStatus === 'OCCUPIED' && 'Occupé'}
+                      </span>
 
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/10">
-                              <span className="text-on-surface-variant flex items-center gap-1.5 text-xs font-medium">
-                                <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
-                                Disponible à partir du <strong className="font-bold">28-09-26</strong> 
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => navigate(`/student/${name.toLowerCase()}`)}
-                                  className="text-secondary hover:underline text-xs font-bold transition-colors mr-1"
-                                >
-                                  Profil de {name}
-                                </button>
-                                <button className="px-4 py-2 rounded-xl border border-outline-variant text-primary text-xs font-bold hover:border-secondary hover:text-secondary transition-all">
-                                  Voir détails
-                                </button>
-                                <button className="px-4 py-2 rounded-xl bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 active:scale-[0.98] transition-all shadow">
-                                  Réserver la chambre
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    }
-
-                    // CASE 3: OCCUPIED ROOM (🔴)
-                    return (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.08 }}
-                        className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 ambient-shadow overflow-hidden flex flex-col sm:flex-row"
+                      {/* Left Navigation Arrow */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEntirePlaceDirection('left');
+                          setEntirePlacePhotoIndex(prev => (prev - 1 + fakePhotos.length) % fakePhotos.length);
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-surface-container-lowest/85 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md border border-outline-variant/20 hover:bg-surface-container-lowest transition-all active:scale-95 text-primary"
+                        aria-label="Photo précédente"
                       >
-                        {/* Photo */}
-                        <div className="relative w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 bg-surface-container">
-                          <img src={fakeRoomImages[i % fakeRoomImages.length]} alt={`Chambre ${i + 1}`} className="w-full h-full object-cover" />
-                          <span className="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                            Occupée
-                          </span>
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+
+                      {/* Right Navigation Arrow */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEntirePlaceDirection('right');
+                          setEntirePlacePhotoIndex(prev => (prev + 1) % fakePhotos.length);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-surface-container-lowest/85 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md border border-outline-variant/20 hover:bg-surface-container-lowest transition-all active:scale-95 text-primary"
+                        aria-label="Photo suivante"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+
+                      {/* Dot indicators */}
+                      <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+                        {fakePhotos.map((_, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEntirePlaceDirection(idx > entirePlacePhotoIndex ? 'right' : 'left');
+                              setEntirePlacePhotoIndex(idx);
+                            }}
+                            className={cn(
+                              'rounded-full transition-all duration-300',
+                              idx === entirePlacePhotoIndex
+                                ? 'w-3.5 h-1 bg-white shadow'
+                                : 'w-1 h-1 bg-white/50 hover:bg-white/80'
+                            )}
+                            aria-label={`Photo ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Photo counter */}
+                      <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-md text-[10px] font-bold text-white shadow z-10">
+                        {entirePlacePhotoIndex + 1}/{fakePhotos.length}
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex-1 p-6 flex flex-col gap-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
+                            {property.title} — {property.surface} m²
+                            <span className={cn(
+                              "w-2 h-2 rounded-full inline-block",
+                              entirePlaceStatus === 'FREE' ? "bg-emerald-500" : (entirePlaceStatus === 'LEAVING' ? "bg-amber-500" : "bg-rose-500")
+                            )} />
+                          </h3>
+                          <p className={cn(
+                            "font-bold text-sm mt-0.5",
+                            entirePlaceStatus === 'FREE' ? "text-secondary" : (entirePlaceStatus === 'LEAVING' ? "text-amber-600" : "text-on-surface-variant")
+                          )}>
+                            {entirePlaceStatus === 'FREE' && 'Logement entier disponible immédiatement'}
+                            {entirePlaceStatus === 'LEAVING' && 'Préavis déposé · Sortie prévue le 28-09-26 (Réservable)'}
+                            {entirePlaceStatus === 'OCCUPIED' && 'Logement entier actuellement occupé'}
+                          </p>
                         </div>
+                        <div className="text-right flex-shrink-0">
+                          <span className="font-display text-2xl font-bold text-secondary">{property.price} TND</span>
+                          <span className="text-on-surface-variant text-xs font-medium block">/ mois</span>
+                        </div>
+                      </div>
 
-                        {/* Details */}
-                        <div className="flex-1 p-6 flex flex-col gap-4">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
-                                Chambre {i + 1} — {roomSurface} m²
-                                <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" title="Occupée" />
-                              </h3>
-                              <p className="text-on-surface-variant text-sm font-medium">
-                                Occupée par <button onClick={() => navigate(`/student/${name.toLowerCase()}`)} className="text-secondary font-bold hover:underline transition-colors">{name}</button>
-                              </p>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <span className="font-display text-2xl font-bold text-secondary">{property.price} TND</span>
-                              <span className="text-on-surface-variant text-xs font-medium block">/ mois</span>
-                            </div>
-                          </div>
+                      <div className="flex flex-wrap gap-3 text-xs font-bold text-on-surface-variant">
+                        <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                          <Armchair className="w-3.5 h-3.5 text-secondary" /> Meublé
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                          <User className="w-3.5 h-3.5 text-secondary" /> 1 pers. max.
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                          <Shield className="w-3.5 h-3.5 text-secondary" /> Charges comprises
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+                          <Home className="w-3.5 h-3.5 text-secondary" /> Logement entier
+                        </span>
+                      </div>
 
-                          <div className="flex flex-wrap gap-3 text-xs font-bold text-on-surface-variant">
-                            <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                              <Armchair className="w-3.5 h-3.5 text-secondary" /> Meublée
-                            </span>
-                            <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                              <User className="w-3.5 h-3.5 text-secondary" /> 1 pers. max.
-                            </span>
-                            <span className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
-                              <Star className="w-3.5 h-3.5 text-secondary" /> Charges comprises
-                            </span>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/10">
-                            <span className="text-on-surface-variant flex items-center gap-1.5 text-xs font-medium">
-                              <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
-                              Chambre non disponible
-                            </span>
-                            <button
-                              onClick={() => navigate(`/student/${name.toLowerCase()}`)}
-                              className="text-secondary hover:underline text-xs font-bold transition-colors"
-                            >
-                              Voir le profil de {name}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/10">
+                        <span className="text-on-surface-variant flex items-center gap-1.5 text-xs font-medium">
+                          <span className={cn(
+                            "w-2 h-2 rounded-full inline-block",
+                            entirePlaceStatus === 'FREE' ? "bg-emerald-500" : (entirePlaceStatus === 'LEAVING' ? "bg-amber-500" : "bg-rose-500")
+                          )} />
+                          {entirePlaceStatus === 'FREE' && 'Disponible dès maintenant'}
+                          {entirePlaceStatus === 'LEAVING' && <span>Disponible à partir du <strong className="font-bold">28-09-26</strong></span>}
+                          {entirePlaceStatus === 'OCCUPIED' && 'Logement non disponible'}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button className="px-4 py-2 rounded-xl border border-outline-variant text-primary text-xs font-bold hover:border-secondary hover:text-secondary transition-all">
+                            Voir détails
+                          </button>
+                          {entirePlaceStatus === 'FREE' && (
+                            <button className="px-4 py-2 rounded-xl bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 active:scale-[0.98] transition-all shadow">
+                              Déposer un dossier
                             </button>
-                          </div>
+                          )}
+                          {entirePlaceStatus === 'LEAVING' && (
+                            <button className="px-4 py-2 rounded-xl bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 active:scale-[0.98] transition-all shadow">
+                              Réserver le logement
+                            </button>
+                          )}
                         </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </section>
+                      </div>
+                    </div>
+                  </motion.div>
+                </section>
+              </>
             );
           })()}
 

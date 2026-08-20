@@ -111,10 +111,16 @@ async function run() {
   // Clear and seed ads
   await Ad.deleteMany({});
 
+  // TODO (Future Espace Propriétaire):
+  // When building the landlord portal (Espace Propriétaire), landlords will have the ability to choose
+  // between 2 publication modes during listing creation:
+  //   1) Mode Colocation (Chambre en colocation): requires defining number of rooms, roommate profiles, room photos, and per-room availability (Occupé / Sortie le DD-MM-YY / Libre).
+  //   2) Mode 1 Personne / Logement Entier (Studio, S+1, S+2...): entire place listing with global availability status (Libre / Sortie le DD-MM-YY / Occupé).
   const adsToSeed = [
     {
+      _id: new mongoose.Types.ObjectId('6a842c331127f2b75aa49b7b'),
       title: 'S+1 Moderne Centre Ville',
-      description: 'Superbe appartement de 45m² refait à neuf, idéalement situé au cœur de Tunis. Calme et très lumineux. Proche de toutes commodités, stations de métro et universités centrales.',
+      description: 'Superbe appartement de 45m² refait à neuf, idéalement situé au cœur de Tunis. Calme et très lumineux. Préavis déposé par l\'occupant actuel (Sortie le 28-09-26). Proche de toutes commodités, stations de métro et universités centrales.',
       price: 650,
       location: 'Tunis, Lafayette',
       address: '14 Rue de Palestine, Lafayette',
@@ -127,11 +133,12 @@ async function run() {
       distanceToFac: 10,
       transportAccess: true,
       image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800',
-      features: ['45m²', 'Wifi Fibre', 'Meublé', 'Métro à 2 min'],
+      features: ['45m²', 'Wifi Fibre', 'Meublé', 'Métro à 2 min', 'Sortie le 28-09-26'],
       owner: ownerNourdine._id,
       status: 'ACTIVE'
     },
     {
+      _id: new mongoose.Types.ObjectId('6a842c331127f2b75aa49b79'),
       title: 'S+3 Colocation Féminine El Menzah 5',
       description: 'Grand appartement S+3 de 90m² dans une résidence calme et sécurisée. 1 chambre occupée, 1 chambre libérée le 28-09-26 (préavis déposé), et 1 chambre disponible immédiatement. Ambiance studieuse, idéal pour étudiante (INSAT, Sesame, Dauphine). Balcon, machine à laver, Wifi fibre.',
       price: 350,
